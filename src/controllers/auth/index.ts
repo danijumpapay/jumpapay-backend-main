@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import authSecret from "../../config/auth";
-import { generateId } from "../../utils/helpers";
-import { authResponse, successResponse, errorResponse } from "../../utils/response";
-import Users from "../../models/user/Users.model";
+import authSecret from "@config/auth";
+import { generateId } from "@utils/helpers";
+import { authResponse, successResponse, errorResponse } from "@utils/response";
+import Users from "@models/user/Users.model";
 
 export const login = async (req: Request, res: Response) => {
   const { user, password } = req.body;
