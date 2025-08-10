@@ -20,10 +20,12 @@ import companywhatsappRoutes from "../v1/company/companywhatsappRoutes";
 import companyemployeesRoutes from "../v1/company/companyemployeesRoutes";
 import ordersRoutes from "../v1/transaction/ordersRoutes";
 import orderaddressesRoutes from "../v1/transaction/orderaddressesRoutes";
-import authRoutes from "./authRoutes";
+import chatsRoutes from "@routes/v1/chats";
+import messagesRoutes from "@routes/v1/messages";
+import messageRoutes from "@routes/v1/message";
+import authRoutes from "./auth";
 
 const router = Router();
-
 
 router.use("/auth", authRoutes);
 
@@ -63,5 +65,10 @@ router.use("/orders", ordersRoutes);
 router.use("/orderaddresses", orderaddressesRoutes);
 //#endregion - transaction
 
+//#region - whatsapp
+router.use("/chats", chatsRoutes);
+router.use("/messages", messagesRoutes);
+router.use("/message", messageRoutes);
+//#endregion - whatsapp
 
 export default router;

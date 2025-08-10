@@ -9,11 +9,12 @@ class Chats extends Model {
   phone!: string;
   name!: string;
   avatar?: string | null;
-  last_seen?:  string | null;
+  last_seen?: string | null;
   taken_by?: string | null;
   password?: string | null;
   is_read?: boolean;
   is_session_active?: boolean;
+  last_message?: any | null;
   last_message_at?: string | null;
   deleted_at?: string | null;
   created_at?: Date;
@@ -38,6 +39,7 @@ class Chats extends Model {
         password: { type: "string" },
         is_read: { type: "boolean", default: false },
         is_session_active: { type: "boolean", default: false },
+        last_message: { type: "object" },
         last_message_at: { type: ["string", "null"] },
         deleted_at: { type: ["string", "null"] },
         created_at: { type: "string" },

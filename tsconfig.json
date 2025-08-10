@@ -11,17 +11,48 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@root/*": ["*"],
-      "@src/*": ["src/*"],
-      "@routes/*": ["src/routes/*"],
-      "@middlewares/*": ["src/middlewares/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@models/*": ["src/models/*"],
-      "@utils/*": ["src/utils/*"],
-      "@config/*": ["src/config/*"]
+      "@root/*": [
+        "*"
+      ],
+      "@src/*": [
+        "src/*"
+      ],
+      "@routes/*": [
+        "src/routes/*"
+      ],
+      "@middlewares/*": [
+        "src/middlewares/*"
+      ],
+      "@controllers/*": [
+        "src/controllers/*"
+      ],
+      "@models/*": [
+        "src/models/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@plugins/*": [
+        "src/plugins/*"
+      ],
+      "@dataTypes/*": [
+        "src/dataTypes/*"
+      ],
     },
-    "types": ["node","objection"],
+    "types": [
+      "node",
+      "objection"
+    ],
   },
-  "types": ["node","objection"],
-  "exclude": ["node_modules", "dist"]
+  "types": [
+    "node",
+    "objection"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

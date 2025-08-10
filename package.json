@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register dist/index.js",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q --exec ts-node -r tsconfig-paths/register dist/index.js\"",
     "build": "npx tsc",
     "migrate": "npx knex migrate:latest --env development --knexfile knexfile.ts",
     "migrate:rollback": "npx knex migrate:rollback --env development --knexfile knexfile.ts",
@@ -29,12 +29,14 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.19.0",
     "@hapi/joi": "^17.1.1",
+    "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
+    "kafkajs": "^2.2.4",
     "nodemailer": "^6.9.1",
     "objection": "^3.0.1",
     "pg": "^8.10.0",
