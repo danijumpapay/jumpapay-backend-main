@@ -23,7 +23,7 @@ import orderaddressesRoutes from "../v1/transaction/orderaddressesRoutes";
 import chatsRoutes from "@routes/v1/chats";
 import messagesRoutes from "@routes/v1/messages";
 import messageRoutes from "@routes/v1/message";
-import whatsappsRoutes from "@routes/v1/whatsapps";
+import merchantsRoutes from "@routes/v1/merchants";
 import authRoutes from "./auth";
 
 const router = Router();
@@ -70,7 +70,7 @@ router.use("/orderaddresses", orderaddressesRoutes);
 router.use("/chats", chatsRoutes);
 router.use("/messages", messagesRoutes);
 router.use("/message", messageRoutes);
-router.use("/whatsapps", whatsappsRoutes);
+router.use("/merchants", merchantsRoutes);
 //#endregion - whatsapp
 
 export default router;

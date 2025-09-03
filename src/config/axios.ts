@@ -3,31 +3,13 @@ import dotenv from "dotenv";
 import errorResponseHandler from "@middlewares/axiosMiddleware";
 
 dotenv.config();
+const b2bHost: string | undefined = process.env.BOT_B2B_HOST;
+const b2cHost: string | undefined = process.env.BOT_B2C_HOST;
 
-const waCloudApiURL: string | undefined = process.env.WA_CLOUD_API_URL;
-const waCloudApiVersion: string | undefined = process.env.WA_CLOUD_API_VERSION;
-let baseURL: string | undefined = `${waCloudApiURL}/${waCloudApiVersion}`;
-const token: string | undefined = process.env.WA_CLOUD_API_ACCESS_TOKEN;
-const waPhoneNumberId: string | number = process.env.WA_PHONE_NUMBER_ID || "400686439798296";
-
-const axiosInstance = (withPhoneNumberId: boolean = true) => {
+const axiosInstance = (botType: string) => {
   const instance = axios.create({
-    baseURL: withPhoneNumberId ? `${baseURL}/${waPhoneNumberId}` : baseURL,
+    baseURL: botType.toLowerCase() === "b2b" ? b2bHost : b2cHost,
   });
-
-  instance.interceptors.request.use(
-    (config) => {
-      if (token) {
-        const bearerToken = `Bearer ${token}`;
-        config.headers.Authorization = bearerToken;
-      }
-      return config;
-    },
-    (error) => {
-      console.log("ERROR ======>", error);
-      return Promise.reject(error);
-    },
-  );
 
   instance.interceptors.response.use(
     (response) => response,

@@ -14,6 +14,7 @@ class Chats extends Model {
   password?: string | null;
   is_read?: boolean;
   is_session_active?: boolean;
+  total_unread_message?: number;
   last_message?: any | null;
   last_message_at?: string | null;
   deleted_at?: string | null;
@@ -39,6 +40,7 @@ class Chats extends Model {
         password: { type: "string" },
         is_read: { type: "boolean", default: false },
         is_session_active: { type: "boolean", default: false },
+        total_unread_message: { type: "number", default: 0 },
         last_message: { type: "object" },
         last_message_at: { type: ["string", "null"] },
         deleted_at: { type: ["string", "null"] },

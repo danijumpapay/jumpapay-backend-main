@@ -5,7 +5,7 @@ Model.knex(knex);
 
 class AccessRoles extends Model {
   id!: number;
-  group_id!: string;
+  merchant_id!: string;
   whatsapp_id!: string;
   user_id!: string;
   created_at?: string;

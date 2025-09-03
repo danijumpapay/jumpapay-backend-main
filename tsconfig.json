@@ -43,8 +43,11 @@
       ],
     },
     "types": [
-      "node",
-      "objection"
+      "node"
+    ],
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
     ],
   },
   "types": [

@@ -3,7 +3,7 @@ import knex from "@config/connection";
 
 Model.knex(knex);
 
-class Groups extends Model {
+class Merchants extends Model {
   id!: number;
   name!: string;
   icon?: string | null;
@@ -13,7 +13,7 @@ class Groups extends Model {
   created_at?: Date;
 
   static get tableName() {
-    return "whatsapp.groups";
+    return "whatsapp.merchants";
   }
 
   static get jsonSchema() {
@@ -34,4 +34,4 @@ class Groups extends Model {
   }
 }
 
-export default Groups;
+export default Merchants;

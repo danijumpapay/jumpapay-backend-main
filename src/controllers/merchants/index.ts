@@ -1,27 +1,24 @@
 import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
-import MWhatsapp from "@models/whatsapp/Whatsapp.model";
+import MMerchants from "@models/whatsapp/Merchants.model";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
-  const merchantId = req.params.merchantId;
   const limit: number = Number(req.query.limit) || 10;
   const page: number = Number(req.query.page) || 1;
-  const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MWhatsapp.query()
+    const rawQuery = MMerchants.query()
       .select(
-        "whatsapp.id",
-        "whatsapp.merchant_id as merchantId",
-        "whatsapp.phone_id as phoneId",
-        "whatsapp.phone",
-        "whatsapp.name",
-        "whatsapp.avatar",
+        "merchants.id",
+        "merchants.name",
+        "merchants.icon",
+        "merchants.description",
+        "merchants.created_by as createdBy",
+        "merchants.created_at as createdAt",
       )
-      .orderBy("whatsapp.name", "ASC")
-      .where("whatsapp.merchant_id", merchantId)
-      .where("whatsapp.is_active", true)
+      .orderBy("merchants.name", "ASC")
+      .whereNull("merchants.deleted_at")
       .page(page - 1, limit);
 
     const { total, results } = await rawQuery;

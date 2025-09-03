@@ -5,7 +5,7 @@ Model.knex(knex);
 
 class Whatsapp extends Model {
   id!: string;
-  group_id!: number;
+  merchant_id!: number;
   phone_id!: string;
   wab_id!: string;
   phone!: string;
@@ -30,10 +30,10 @@ class Whatsapp extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["id", "group_id", "phone_id", "wab_id", "phone", "name"],
+      required: ["id", "merchant_id", "phone_id", "wab_id", "phone", "name"],
       properties: {
         id: { type: "string", maxLength: 200 },
-        group_id: { type: "string", maxLength: 200 },
+        merchant_id: { type: "string", maxLength: 200 },
         phone_id: { type: "string", maxLength: 200 },
         wab_id: { type: "string", maxLength: 200 },
         phone: { type: "string", maxLength: 200 },

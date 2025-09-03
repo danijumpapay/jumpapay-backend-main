@@ -3,6 +3,6 @@ import { listMessages } from "@controllers/messages";
 
 const router = Router();
 
-router.get("/", listMessages);
+router.get("/:roomId", listMessages);
 
 export default router;

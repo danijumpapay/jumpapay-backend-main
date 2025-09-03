@@ -13,7 +13,9 @@ const chatColumns = [
   raw("CASE WHEN chats.password IS NOT NULL THEN true ELSE false END").as("isPasswordProtected"),
   "chats.last_message_at as lastMessageAt",
   "chats.last_message as lastMessage",
+  "chats.is_read as isRead",
   "chats.is_session_active as isSessionActive",
+  "chats.total_unread_message as totalUnreadMessage",
   "chats.last_seen as lastSeen",
   "chats.created_at as createdAt",
 ];
@@ -23,8 +25,8 @@ export const listUntakenChats = async (req: Request, res: Response) => {
   const phoneId = req.params.phoneId;
   const limit: number = Number(req.query.limit) || 10;
   const page: number = Number(req.query.page) || 1;
-  const isRead: boolean | null = req.query.isRead ? Boolean(req.query.isRead) : null;
-  const isSessionActive: boolean | null = req.query.isSessionActive ? Boolean(req.query.isSessionActive) : null;
+  const isRead: boolean | null = req.query.isRead ? !!Number(req.query.isRead) : null;
+  const isSessionActive: boolean | null = req.query.isSessionActive ? !!Number(req.query.isSessionActive) : null;
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
@@ -82,8 +84,8 @@ export const listTakenChats = async (req: Request, res: Response) => {
   const phoneId = req.params.phoneId;
   const limit: number = Number(req.query.limit) || 10;
   const page: number = Number(req.query.page) || 1;
-  const isRead: boolean | null = req.query.isRead ? Boolean(req.query.isRead) : null;
-  const isSessionActive: boolean | null = req.query.isSessionActive ? Boolean(req.query.isSessionActive) : null;
+  const isRead: boolean | null = req.query.isRead ? !!Number(req.query.isRead) : null;
+  const isSessionActive: boolean | null = req.query.isSessionActive ? !!Number(req.query.isSessionActive) : null;
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
