@@ -1,7 +1,7 @@
-import { Model, raw } from "objection";
-import knex from "../../config/connection";
-import Users from "../../models/user/Users.model";
-import Vehicles from "../../models/customer/Vehicles.model";
+import { Model } from "objection";
+import knex from "@config/connection";
+import Users from "@models/user/Users.model";
+import Vehicles from "./Vehicles.model";
 
 Model.knex(knex);
 
@@ -13,9 +13,9 @@ class BpkbDocuments extends Model {
   issue_date?: string | null;
   registration_office?: string | null;
   image?: string | null;
-  is_active?: boolean;
+  is_active?: boolean | null;
   deleted_at?: string | null;
-  created_at?: string | null;
+  created_at?: string;
 
   static get tableName() {
     return "customer.bpkb_documents";
@@ -29,7 +29,7 @@ class BpkbDocuments extends Model {
     await BpkbDocuments.query()
       .findById(id)
       .patch({
-        deleted_at: new Date().toISOString()
+        deleted_at: new Date().toISOString(),
       });
   }
 
@@ -37,7 +37,6 @@ class BpkbDocuments extends Model {
     return {
       type: "object",
       required: ["id", "user_id", "vehicle_id", "bpkb_number"],
-
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: "string", maxLength: 200 },
@@ -46,7 +45,7 @@ class BpkbDocuments extends Model {
         issue_date: { type: ["string", "null"], format: "date-time" },
         registration_office: { type: ["string", "null"], maxLength: 100 },
         image: { type: ["string", "null"] },
-        is_active: { type: "boolean" },
+        is_active: { type: ["boolean", "null"] },
         deleted_at: { type: ["string", "null"], format: "date-time" },
         created_at: { type: ["string", "null"], format: "date-time" },
       },

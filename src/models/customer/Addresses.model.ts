@@ -1,26 +1,27 @@
-import { Model, raw } from "objection";
-import knex from "../../config/connection";
-import Users from "../../models/user/Users.model";
-import Cities from "../../models/common/Cities.model";
+import { Model } from "objection";
+import knex from "@config/connection";
+import Users from "@models/user/Users.model";
+import Cities from "@models/common/Cities.model";
 
 Model.knex(knex);
+
+type AddressType = "HOUSE" | "OFFICE" | "APARTMENT" | "BOARDING_HOUSE";
 
 class Addresses extends Model {
   id!: string;
   user_id!: string;
   city_id!: number;
   name?: string | null;
-  address_type?: "HOUSE" | "OFFICE" | "APARTMENT" | "BOARDING_HOUSE" | null;
+  address_type?: AddressType | null;
   province?: string | null;
   raw_address?: string | null;
   longitude?: number | null;
   latitude?: number | null;
   postcode?: string | null;
-  is_pickup_address?: boolean;
-  is_return_address?: boolean;
+  is_pickup_address?: boolean | null;
+  is_return_address?: boolean | null;
   deleted_at?: string | null;
-  created_at?: Date;
-  updated_at?: Date;
+  created_at?: string;
 
   static get tableName() {
     return "customer.addresses";
@@ -34,8 +35,7 @@ class Addresses extends Model {
     await Addresses.query()
       .findById(id)
       .patch({
-        raw_address: raw("NULL"),
-        deleted_at: new Date().toISOString()
+        deleted_at: new Date().toISOString(),
       });
   }
 
@@ -43,7 +43,6 @@ class Addresses extends Model {
     return {
       type: "object",
       required: ["id", "user_id", "city_id"],
-
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: "string", maxLength: 200 },
@@ -55,11 +54,10 @@ class Addresses extends Model {
         longitude: { type: ["number", "null"] },
         latitude: { type: ["number", "null"] },
         postcode: { type: ["string", "null"], maxLength: 10 },
-        is_pickup_address: { type: ["boolean"], default: false },
-        is_return_address: { type: ["boolean"], default: false },
-        deleted_at: { type: ["string", "null"] },
-        created_at: { type: "string" },
-        updated_at: { type: ["string", "null"] },
+        is_pickup_address: { type: ["boolean", "null"] },
+        is_return_address: { type: ["boolean", "null"] },
+        deleted_at: { type: ["string", "null"], format: "date-time" },
+        created_at: { type: ["string", "null"], format: "date-time" },
       },
     };
   }
@@ -74,13 +72,13 @@ class Addresses extends Model {
       },
     },
     city: {
-      relation: Model.BelongsToOneRelation,
-      modelClass: Cities,
-      join: {
-        from: "customer.addresses.city_id",
-        to: "common.cities.id",
-      },
-    },
+        relation: Model.BelongsToOneRelation,
+        modelClass: Cities,
+        join: {
+            from: "customer.addresses.city_id",
+            to: "common.cities.id"
+        }
+    }
   };
 }
 

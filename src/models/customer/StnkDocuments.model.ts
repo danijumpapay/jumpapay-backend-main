@@ -1,7 +1,7 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
-import Users from "../../models/user/Users.model";
-import Vehicles from "../../models/customer/Vehicles.model";
+import knex from "@config/connection";
+import Users from "@models/user/Users.model";
+import Vehicles from "./Vehicles.model";
 
 Model.knex(knex);
 
@@ -13,11 +13,10 @@ class StnkDocuments extends Model {
   issue_date?: string | null;
   expiry_date?: string | null;
   tax_due_date?: string | null;
-  is_active?: boolean;
+  is_active?: boolean | null;
   image?: string | null;
   deleted_at?: string | null;
-  created_at?: Date;
-  updated_at?: Date;
+  created_at?: string;
 
   static get tableName() {
     return "customer.stnk_documents";
@@ -31,15 +30,14 @@ class StnkDocuments extends Model {
     await StnkDocuments.query()
       .findById(id)
       .patch({
-        deleted_at: new Date().toISOString()
+        deleted_at: new Date().toISOString(),
       });
   }
-  
+
   static get jsonSchema() {
     return {
       type: "object",
       required: ["id", "user_id", "vehicle_id", "stnk_number"],
-
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: "string", maxLength: 200 },
@@ -48,16 +46,14 @@ class StnkDocuments extends Model {
         issue_date: { type: ["string", "null"], format: "date-time" },
         expiry_date: { type: ["string", "null"], format: "date-time" },
         tax_due_date: { type: ["string", "null"], format: "date-time" },
-        is_active: { type: ["boolean"], default: false },
+        is_active: { type: ["boolean", "null"] },
         image: { type: ["string", "null"] },
         deleted_at: { type: ["string", "null"], format: "date-time" },
-        created_at: { type: "string" },
-        updated_at: { type: ["string", "null"], format: "date-time" },
+        created_at: { type: ["string", "null"], format: "date-time" },
       },
     };
   }
 
-  // Relation Mappings
   static relationMappings = {
     user: {
       relation: Model.BelongsToOneRelation,

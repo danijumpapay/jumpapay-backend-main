@@ -1,5 +1,6 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
+import knex from "@config/connection";
+import Users from "./Users.model";
 
 Model.knex(knex);
 
@@ -7,7 +8,7 @@ class UserEmails extends Model {
   id!: string;
   user_id!: string;
   email!: string;
-  is_primary?: boolean;
+  is_primary?: boolean | null;
   verified_at?: string | null;
 
   static get tableName() {
@@ -17,17 +18,27 @@ class UserEmails extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["user_id", "email"],
-
+      required: ["id", "user_id", "email"],
       properties: {
-        id: { type: "string", format: "uuid" },
+        id: { type: "string" }, // Tipe data uuid
         user_id: { type: "string", maxLength: 200 },
         email: { type: "string" },
-        is_primary: { type: "boolean", default: false },
+        is_primary: { type: ["boolean", "null"] },
         verified_at: { type: ["string", "null"], format: "date-time" },
       },
     };
   }
+
+  static relationMappings = {
+    user: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Users,
+      join: {
+        from: "user.user_emails.user_id",
+        to: "user.users.id",
+      },
+    },
+  };
 }
 
 export default UserEmails;

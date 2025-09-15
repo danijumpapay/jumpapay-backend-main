@@ -1,5 +1,6 @@
 import { Model } from "objection";
 import knex from "../../config/connection";
+import Cities from "./Cities.model";
 
 Model.knex(knex);
 
@@ -41,7 +42,22 @@ class Plates extends Model {
         deleted_at: { type: ["string", "null"] },
       },
     };
-  }
+  };
+
+  static relationMappings = {
+    cities: {
+      relation: Model.ManyToManyRelation,
+      modelClass: Cities,
+      join: {
+        from: "common.plates.id",
+        through: {
+          from: "common.city_plates.plate_id",
+          to: "common.city_plates.city_id",
+        },
+        to: "common.cities.id",
+      },
+    },
+  };
 }
 
 export default Plates;

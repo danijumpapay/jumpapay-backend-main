@@ -1,5 +1,5 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
+import knex from "@config/connection";
 import Companies from "./Companies.model";
 
 Model.knex(knex);
@@ -19,9 +19,9 @@ class CompanyWhatsapp extends Model {
   access_token?: string | null;
   webhook?: string | null;
   webhook_token?: string | null;
-  is_active?: boolean;
+  is_active?: boolean | null;
   deleted_at?: string | null;
-  created_at?: string | null;
+  created_at?: string;
 
   static get tableName() {
     return "company.company_whatsapp";
@@ -35,10 +35,7 @@ class CompanyWhatsapp extends Model {
     await CompanyWhatsapp.query()
       .findById(id)
       .patch({
-        phone: CompanyWhatsapp.raw("NULL"),
-        access_token: CompanyWhatsapp.raw("NULL"),
-        webhook: CompanyWhatsapp.raw("NULL"),
-        deleted_at: new Date().toISOString()
+        deleted_at: new Date().toISOString(),
       });
   }
 
@@ -46,7 +43,6 @@ class CompanyWhatsapp extends Model {
     return {
       type: "object",
       required: ["id", "company_id"],
-
       properties: {
         id: { type: "string", maxLength: 200 },
         company_id: { type: "string", maxLength: 200 },
@@ -62,7 +58,7 @@ class CompanyWhatsapp extends Model {
         access_token: { type: ["string", "null"] },
         webhook: { type: ["string", "null"] },
         webhook_token: { type: ["string", "null"] },
-        is_active: { type: "boolean" },
+        is_active: { type: ["boolean", "null"] },
         deleted_at: { type: ["string", "null"], format: "date-time" },
         created_at: { type: ["string", "null"], format: "date-time" },
       },

@@ -1,18 +1,19 @@
 import { Model } from "objection";
 import knex from "@config/connection";
-import Users from "./Users.model";
+import Users from "@models/user/Users.model";
 
 Model.knex(knex);
 
-class UserActivities extends Model {
+type InternalRole = "C LEVEL" | "DEVELOPER" | "CS" | "COURIER";
+
+class Employees extends Model {
   id!: string;
   user_id!: string;
-  activity_name?: string | null;
-  activity_detail?: string | null;
-  created_at?: string;
+  position?: string | null;
+  role?: InternalRole;
 
   static get tableName() {
-    return "user.user_activities";
+    return "internal.employees";
   }
 
   static get jsonSchema() {
@@ -22,9 +23,8 @@ class UserActivities extends Model {
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: "string", maxLength: 200 },
-        activity_name: { type: ["string", "null"] },
-        activity_detail: { type: ["string", "null"] },
-        created_at: { type: ["string", "null"], format: "date-time" },
+        position: { type: ["string", "null"], maxLength: 150 },
+        role: { type: ["string", "null"], enum: ["C LEVEL", "DEVELOPER", "CS", "COURIER"] },
       },
     };
   }
@@ -34,11 +34,11 @@ class UserActivities extends Model {
       relation: Model.BelongsToOneRelation,
       modelClass: Users,
       join: {
-        from: "user.user_activities.user_id",
+        from: "internal.employees.user_id",
         to: "user.users.id",
       },
     },
   };
 }
 
-export default UserActivities;
+export default Employees;

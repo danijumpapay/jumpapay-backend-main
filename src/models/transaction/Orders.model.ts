@@ -1,21 +1,32 @@
-import { Model, raw } from "objection";
-import knex from "../../config/connection";
-import Users from "../../models/user/Users.model";
+import { Model } from "objection";
+import knex from "@config/connection";
+import Users from "@models/user/Users.model";
+import Companies from "@models/company/Companies.model";
+import OrderStatus from "@models/common/OrderStatus.model";
+import Cities from "@models/common/Cities.model";
+import OrderDetails from "./OrderDetails.model";
+import OrderAddresses from "./OrderAddresses.model";
+import OrderNotes from "./OrderNotes.model";
 
 Model.knex(knex);
+
+type OrderType = "INVOICING" | "NON INVOICING";
 
 class Orders extends Model {
   id!: string;
   user_id?: string | null;
-  booking_id!: string;
-  phone!: string;
-  city_id!: number;
-  source!: string;
+  company_id?: string | null;
+  order_status_id!: number;
+  booking_id?: string | null;
+  phone?: string | null;
+  city_id?: number | null;
+  source?: string | null;
+  status?: string | null;
   paid_at?: string | null;
-  payment_type!: string;
+  order_type?: OrderType | null;
+  payment_type?: string | null;
   deleted_at?: string | null;
-  created_at?: Date;
-  updated_at?: Date;
+  created_at?: string;
 
   static get tableName() {
     return "transaction.orders";
@@ -29,28 +40,29 @@ class Orders extends Model {
     await Orders.query()
       .findById(id)
       .patch({
-        phone: raw("NULL"),
-        deleted_at: new Date().toISOString()
+        deleted_at: new Date().toISOString(),
       });
   }
 
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["id", "booking_id", "phone", "city_id", "source", "payment_type"],
-
+      required: ["id", "order_status_id"],
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: ["string", "null"], maxLength: 200 },
-        booking_id: { type: "string", maxLength: 100 },
-        phone: { type: "string", maxLength: 30 },
-        city_id: { type: "integer" },
-        source: { type: "string", maxLength: 100 },
+        company_id: { type: ["string", "null"], maxLength: 100 },
+        order_status_id: { type: "integer" },
+        booking_id: { type: ["string", "null"], maxLength: 100 },
+        phone: { type: ["string", "null"], maxLength: 30 },
+        city_id: { type: ["integer", "null"] },
+        source: { type: ["string", "null"], maxLength: 100 },
+        status: { type: ["string", "null"], maxLength: 100 },
         paid_at: { type: ["string", "null"], format: "date-time" },
-        payment_type: { type: "string", maxLength: 200 },
+        order_type: { type: ["string", "null"], enum: ["INVOICING", "NON INVOICING"] },
+        payment_type: { type: ["string", "null"], maxLength: 200 },
         deleted_at: { type: ["string", "null"], format: "date-time" },
-        created_at: { type: "string", format: "date-time" },
-        updated_at: { type: ["string", "null"], format: "date-time" },
+        created_at: { type: ["string", "null"], format: "date-time" },
       },
     };
   }
@@ -64,6 +76,54 @@ class Orders extends Model {
         to: "user.users.id",
       },
     },
+    company: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Companies,
+        join: {
+            from: "transaction.orders.company_id",
+            to: "company.companies.id"
+        }
+    },
+    orderStatus: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: OrderStatus,
+        join: {
+            from: "transaction.orders.order_status_id",
+            to: "common.order_status.id"
+        }
+    },
+    city: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Cities,
+        join: {
+            from: "transaction.orders.city_id",
+            to: "common.cities.id"
+        }
+    },
+    details: {
+        relation: Model.HasManyRelation,
+        modelClass: OrderDetails,
+        join: {
+            from: "transaction.orders.id",
+            to: "transaction.order_details.order_id"
+        }
+    },
+    addresses: {
+        relation: Model.HasManyRelation,
+        modelClass: OrderAddresses,
+        join: {
+            from: "transaction.orders.id",
+            to: "transaction.order_addresses.order_id"
+        }
+    },
+    notes: {
+        relation: Model.HasManyRelation,
+        modelClass: OrderNotes,
+        join: {
+            from: "transaction.orders.id",
+            to: "transaction.order_notes.order_id"
+        }
+    }
   };
 }
 

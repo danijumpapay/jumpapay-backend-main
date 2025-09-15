@@ -1,6 +1,6 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
-import Vehicles from "../../models/customer/Vehicles.model";
+import knex from "@config/connection";
+import Vehicles from "./Vehicles.model";
 
 Model.knex(knex);
 
@@ -9,7 +9,7 @@ class VehicleImages extends Model {
   vehicle_id!: string;
   original_image?: string | null;
   image?: string | null;
-  created_at?: string | null;
+  created_at?: string;
 
   static get tableName() {
     return "customer.vehicle_images";
@@ -18,10 +18,9 @@ class VehicleImages extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["vehicle_id"],
-
+      required: ["id", "vehicle_id"],
       properties: {
-        id: { type: "string", format: "uuid" },
+        id: { type: "string" }, // uuid
         vehicle_id: { type: "string", maxLength: 200 },
         original_image: { type: ["string", "null"] },
         image: { type: ["string", "null"] },

@@ -1,20 +1,22 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
-import Users from "../../models/user/Users.model";
+import knex from "@config/connection";
+import Users from "@models/user/Users.model";
 
 Model.knex(knex);
+
+type Gender = "MALE" | "FEMALE";
 
 class IdCards extends Model {
   id!: string;
   user_id!: string;
   nik?: string | null;
-  gender?: "MALE" | "FEMALE" | null;
+  gender?: Gender | null;
   job?: string | null;
   blood_type?: string | null;
   religion?: string | null;
   image?: string | null;
   deleted_at?: string | null;
-  created_at?: string | null;
+  created_at?: string;
 
   static get tableName() {
     return "customer.id_cards";
@@ -36,7 +38,6 @@ class IdCards extends Model {
     return {
       type: "object",
       required: ["id", "user_id"],
-
       properties: {
         id: { type: "string", maxLength: 200 },
         user_id: { type: "string", maxLength: 200 },
@@ -51,7 +52,7 @@ class IdCards extends Model {
       },
     };
   }
-
+  
   static relationMappings = {
     user: {
       relation: Model.BelongsToOneRelation,

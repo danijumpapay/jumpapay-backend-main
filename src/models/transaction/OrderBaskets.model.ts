@@ -1,30 +1,26 @@
 import { Model } from "objection";
 import knex from "@config/connection";
-import Users from "./Users.model";
+import Orders from "./Orders.model";
 
 Model.knex(knex);
 
-class UserOtp extends Model {
+class OrderBaskets extends Model {
   id!: string;
-  user_id!: string;
-  name?: string | null;
-  code?: string | null;
+  order_id!: string;
   expired_at?: string | null;
   created_at?: string;
 
   static get tableName() {
-    return "user.user_otp";
+    return "transaction.order_baskets";
   }
 
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["id", "user_id"],
+      required: ["id", "order_id"],
       properties: {
-        id: { type: "string" }, // uuid
-        user_id: { type: "string", maxLength: 200 },
-        name: { type: ["string", "null"], maxLength: 100 },
-        code: { type: ["string", "null"] },
+        id: { type: "string", maxLength: 200 },
+        order_id: { type: "string", maxLength: 200 },
         expired_at: { type: ["string", "null"], format: "date-time" },
         created_at: { type: ["string", "null"], format: "date-time" },
       },
@@ -32,15 +28,15 @@ class UserOtp extends Model {
   }
 
   static relationMappings = {
-    user: {
+    order: {
       relation: Model.BelongsToOneRelation,
-      modelClass: Users,
+      modelClass: Orders,
       join: {
-        from: "user.user_otp.user_id",
-        to: "user.users.id",
+        from: "transaction.order_baskets.order_id",
+        to: "transaction.orders.id",
       },
     },
   };
 }
 
-export default UserOtp;
+export default OrderBaskets;
