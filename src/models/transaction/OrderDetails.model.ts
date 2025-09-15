@@ -2,19 +2,18 @@ import { Model } from "objection";
 import knex from "@config/connection";
 import Orders from "./Orders.model";
 import Services from "@models/service/Services.model";
+import Vehicles from "@models/customer/Vehicles.model";
 import OrderDetailFees from "./OrderDetailFees.model";
 import OrderDetailDocuments from "./OrderDetailDocuments.model";
 
 Model.knex(knex);
 
-type VehicleTypeEnum = "CAR" | "MOTORCYCLE";
 type DetailTypeEnum = "RETURN" | "PICKUP";
 
 class OrderDetails extends Model {
   id!: string;
   order_id!: string;
   service_id!: number;
-  vehicle_type?: VehicleTypeEnum;
   price?: number | null;
   type?: DetailTypeEnum;
 
@@ -25,12 +24,12 @@ class OrderDetails extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["id", "order_id", "service_id"],
+      required: ["id", "order_id", "service_id", "vehicle_id"],
       properties: {
         id: { type: "string", maxLength: 200 },
         order_id: { type: "string", maxLength: 200 },
         service_id: { type: "integer" },
-        vehicle_type: { type: ["string", "null"], enum: ["CAR", "MOTORCYCLE"] },
+        vehicle_id: { type: "string", maxLength: 100 },
         price: { type: ["number", "null"] },
         type: { type: ["string", "null"], enum: ["RETURN", "PICKUP"] },
       },
@@ -52,6 +51,14 @@ class OrderDetails extends Model {
       join: {
         from: "transaction.order_details.service_id",
         to: "service.services.id",
+      },
+    },
+    vehicle: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: Vehicles,
+      join: {
+        from: "transaction.order_details.vehicle_id",
+        to: "customer.vehicles.id",
       },
     },
     fees: {

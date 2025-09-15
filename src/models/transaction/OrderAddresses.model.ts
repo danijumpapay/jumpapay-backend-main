@@ -14,6 +14,8 @@ class OrderAddresses extends Model {
   order_id!: string;
   address_id!: string;
   user_id?: string | null;
+  longitude?: number | null;
+  latitude?: number | null;
   price?: number | null;
   status?: DeliveryStatus;
   delivery_type?: DeliveryType;
@@ -32,6 +34,8 @@ class OrderAddresses extends Model {
         order_id: { type: "string", maxLength: 200 },
         address_id: { type: "string", maxLength: 200 },
         user_id: { type: ["string", "null"], maxLength: 200 },
+        longitude: { type: ["number", "null"] },
+        latitude: { type: ["number", "null"] },
         price: { type: ["number", "null"] },
         status: { type: ["string", "null"], enum: ["WAITING FOR DRIVER", "ON THE WAY", "COMPLETED"] },
         delivery_type: { type: ["string", "null"], enum: ["RETURN", "PICKUP"] },

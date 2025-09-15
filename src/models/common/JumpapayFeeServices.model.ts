@@ -1,5 +1,5 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
+import knex from "@config/connection";
 import JumpapayFees from "./JumpapayFees.model";
 import Services from "@models/service/Services.model";
 

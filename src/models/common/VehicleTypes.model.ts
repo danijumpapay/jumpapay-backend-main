@@ -1,11 +1,12 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
+import knex from "@config/connection";
 
 Model.knex(knex);
 
 class VehicleTypes extends Model {
   id!: number;
   name!: string;
+  is_active?: boolean | null;
   deleted_at?: string | null;
 
   static get tableName() {
@@ -32,6 +33,7 @@ class VehicleTypes extends Model {
       properties: {
         id: { type: "integer" },
         name: { type: "string", maxLength: 100 },
+        is_active: { type: ["boolean", "null"], default: true },
         deleted_at: { type: ["string", "null"] },
       },
     };

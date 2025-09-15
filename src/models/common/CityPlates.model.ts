@@ -1,5 +1,5 @@
 import { Model } from "objection";
-import knex from "../../config/connection";
+import knex from "@config/connection";
 import Cities from "./Cities.model";
 import Plates from "./Plates.model";
 
