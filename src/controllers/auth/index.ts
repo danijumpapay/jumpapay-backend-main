@@ -5,6 +5,7 @@ import authSecret from "@config/auth";
 import { generateId } from "@utils/helpers";
 import { authResponse, successResponse, errorResponse } from "@utils/response";
 import Users from "@models/user/Users.model";
+import { Users } from "@jumpapay/jumpapay-models";
 
 export const login = async (req: Request, res: Response) => {
   const { user, password } = req.body;

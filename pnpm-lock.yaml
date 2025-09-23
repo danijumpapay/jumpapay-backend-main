@@ -14,6 +14,9 @@ importers:
       '@hapi/joi':
         specifier: ^17.1.1
         version: 17.1.1
+      '@jumpapay/jumpapay-models':
+        specifier: ^1.0.0
+        version: 1.0.0(pg@8.16.3)
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -41,6 +44,9 @@ importers:
       kafkajs:
         specifier: ^2.2.4
         version: 2.2.4
+      knex:
+        specifier: ^3.1.0
+        version: 3.1.0(pg@8.16.3)
       multer:
         specifier: ^2.0.2
         version: 2.0.2
@@ -48,8 +54,8 @@ importers:
         specifier: ^6.9.1
         version: 6.10.1
       objection:
-        specifier: ^3.0.1
-        version: 3.1.5(knex@2.5.1(pg@8.16.3))
+        specifier: ^3.1.4
+        version: 3.1.5(knex@3.1.0(pg@8.16.3))
       pg:
         specifier: ^8.10.0
         version: 8.16.3
@@ -69,9 +75,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.2
         version: 9.0.10
-      '@types/knex':
-        specifier: ^0.16.1
-        version: 0.16.1(pg@8.16.3)
       '@types/multer':
         specifier: ^2.0.0
         version: 2.0.0
@@ -81,9 +84,6 @@ importers:
       concurrently:
         specifier: ^8.0.1
         version: 8.2.2
-      knex:
-        specifier: ^2.4.2
-        version: 2.5.1(pg@8.16.3)
       nodemon:
         specifier: ^2.0.22
         version: 2.0.22
@@ -145,6 +145,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@jumpapay/jumpapay-models@1.0.0':
+    resolution: {integrity: sha512-vHIKw9XGg71hr2j9ZcfAa6hxePnTK2wCX6nLjqeeW3CjWpJ9oomDw8AO9MnTF5uinlQbWhHiomYb3hGO9UeBlg==, tarball: https://npm.pkg.github.com/download/@jumpapay/jumpapay-models/1.0.0/9791ae876452fbc538c1f33f1f4e033d81e0c01c}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -216,10 +219,6 @@ packages:
 
   '@types/jsonwebtoken@9.0.10':
     resolution: {integrity: sha512-asx5hIG9Qmf/1oStypjanR7iKTv0gXQ1Ov/jfrX6kS/EO0OFni8orbmGCn0672NHR3kXHwpAwR+B368ZGN/2rA==}
-
-  '@types/knex@0.16.1':
-    resolution: {integrity: sha512-54gWD1HWwdVx5iLHaJ1qxH3I6KyBsj5fFqzRpXFn7REWiEB2jwspeVCombNsocSrqPd7IRPqKrsIME7/cD+TFQ==}
-    deprecated: This is a stub types definition. knex provides its own type definitions, so you do not need this installed.
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
@@ -799,9 +798,9 @@ packages:
     resolution: {integrity: sha512-j/YeapB1vfPT2iOIUn/vxdyKEuhuY2PxMBvf5JWux6iSaukAccrMtXEY/Lb7OvavDhOWME589bpLrEdnVHjfjA==}
     engines: {node: '>=14.0.0'}
 
-  knex@2.5.1:
-    resolution: {integrity: sha512-z78DgGKUr4SE/6cm7ku+jHvFT0X97aERh/f0MUKAKgFnwCYBEW4TFBqtHWFYiJFid7fMrtpZ/gxJthvz5mEByA==}
-    engines: {node: '>=12'}
+  knex@3.1.0:
+    resolution: {integrity: sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==}
+    engines: {node: '>=16'}
     hasBin: true
     peerDependencies:
       better-sqlite3: '*'
@@ -956,8 +955,8 @@ packages:
   pg-cloudflare@1.2.7:
     resolution: {integrity: sha512-YgCtzMH0ptvZJslLM1ffsY4EuGaU0cx4XSdXLRFae8bPP4dS5xL1tNB3k2o/N64cHJpwU7dxKli/nZ2lUa5fLg==}
 
-  pg-connection-string@2.6.1:
-    resolution: {integrity: sha512-w6ZzNu6oMmIzEAYVw+RLK0+nqHPt8K3ZnknKi+g48Ak2pr3dtljJW3o+D/n2zzCG07Zoe9VOX3aiKpj+BN0pjg==}
+  pg-connection-string@2.6.2:
+    resolution: {integrity: sha512-ch6OwaeaPYcova4kKZ15sbJ2hKb/VP48ZD2gE7i1J+L4MspCtBMAx8nMgz7bksc7IojCIIWuEhHibSMFH8m8oA==}
 
   pg-connection-string@2.9.1:
     resolution: {integrity: sha512-nkc6NpDcvPVpZXxrreI/FOtX3XemeLl8E0qFr6F2Lrm/I8WOnaWNhIPK2Z7OHpw7gh5XJThi6j6ppgNoaT1w4w==}
@@ -1421,6 +1420,20 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.4
 
+  '@jumpapay/jumpapay-models@1.0.0(pg@8.16.3)':
+    dependencies:
+      knex: 3.1.0(pg@8.16.3)
+      objection: 3.1.5(knex@3.1.0(pg@8.16.3))
+    transitivePeerDependencies:
+      - better-sqlite3
+      - mysql
+      - mysql2
+      - pg
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+
   '@opentelemetry/api@1.9.0': {}
 
   '@opentelemetry/core@2.0.1(@opentelemetry/api@1.9.0)':
@@ -1491,19 +1504,6 @@ snapshots:
     dependencies:
       '@types/ms': 2.1.0
       '@types/node': 18.19.121
-
-  '@types/knex@0.16.1(pg@8.16.3)':
-    dependencies:
-      knex: 2.5.1(pg@8.16.3)
-    transitivePeerDependencies:
-      - better-sqlite3
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
 
   '@types/mime@1.3.5': {}
 
@@ -2117,7 +2117,7 @@ snapshots:
 
   kafkajs@2.2.4: {}
 
-  knex@2.5.1(pg@8.16.3):
+  knex@3.1.0(pg@8.16.3):
     dependencies:
       colorette: 2.0.19
       commander: 10.0.1
@@ -2128,7 +2128,7 @@ snapshots:
       getopts: 2.3.0
       interpret: 2.2.0
       lodash: 4.17.21
-      pg-connection-string: 2.6.1
+      pg-connection-string: 2.6.2
       rechoir: 0.8.0
       resolve-from: 5.0.0
       tarn: 3.0.2
@@ -2223,12 +2223,12 @@ snapshots:
 
   object-inspect@1.13.4: {}
 
-  objection@3.1.5(knex@2.5.1(pg@8.16.3)):
+  objection@3.1.5(knex@3.1.0(pg@8.16.3)):
     dependencies:
       ajv: 8.17.1
       ajv-formats: 2.1.1(ajv@8.17.1)
       db-errors: 0.2.3
-      knex: 2.5.1(pg@8.16.3)
+      knex: 3.1.0(pg@8.16.3)
 
   on-finished@2.4.1:
     dependencies:
@@ -2243,7 +2243,7 @@ snapshots:
   pg-cloudflare@1.2.7:
     optional: true
 
-  pg-connection-string@2.6.1: {}
+  pg-connection-string@2.6.2: {}
 
   pg-connection-string@2.9.1: {}
 
