@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
-import MWhatsapp from "@models/whatsapp/Whatsapp.model";
+import { whatsapp } from "@jumpapay/jumpapay-models";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MWhatsapp.query()
+    const rawQuery = whatsapp.Whatsapp.query()
       .select(
         "whatsapp.id",
         "whatsapp.merchant_id as merchantId",

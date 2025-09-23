@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
+import { Knex } from "knex";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import authSecret from "@config/auth";
 import { generateId } from "@utils/helpers";
 import { authResponse, successResponse, errorResponse } from "@utils/response";
-import Users from "@models/user/Users.model";
-import { Users } from "@jumpapay/jumpapay-models";
+import { user } from "@jumpapay/jumpapay-models";
 
 export const login = async (req: Request, res: Response) => {
   const { user, password } = req.body;
 
   try {
-    const dataUser = await Users.query()
+    const dataUser = await user.Users.query()
       .select()
-      .where((q) =>
+      .where((q: Knex.QueryBuilder) =>
         q.where("user.users.username", user)
           .orWhere("user.users.phone", user)
       )
@@ -79,7 +79,7 @@ export const register = async (req: Request, res: Response) => {
       role: role || "CUSTOMER", 
     };
 
-    const isUserExist = await Users.querySoftDelete().findOne({ "user.users.phone": phone });
+    const isUserExist = await user.Users.querySoftDelete().findOne({ "user.users.phone": phone });
 
     if (isUserExist) {
       return res.status(409).json(
@@ -87,8 +87,8 @@ export const register = async (req: Request, res: Response) => {
       );
     }
 
-    const user = await Users.query().insert(formData);
-    const { password, verified_at, is_active, is_reviewer, ...rest } = user;
+    const findUser = await user.Users.query().insert(formData);
+    const { password, verified_at, is_active, is_reviewer, ...rest } = findUser;
     const updatedUser = {
       ...rest,
       isVerified: !!verified_at,
