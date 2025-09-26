@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import MUsers from "../../../models/user/Users.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -12,7 +12,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MUsers.querySoftDelete()
+    const rawQuery = user.Users.querySoftDelete()
       .select(
         "users.id",
         "users.name",
@@ -67,7 +67,7 @@ export const listData = async (req: Request, res: Response) => {
     const userId = req.params.id;
   
     try {
-      const user = await MUsers.querySoftDelete()
+      const data = await user.Users.querySoftDelete()
         .select(
           "users.id",
           "users.name",
@@ -87,9 +87,9 @@ export const listData = async (req: Request, res: Response) => {
         )
         .findById(userId);
   
-        if (user) {
+        if (data) {
           res.status(200).json(
-            successResponse("SUCCESS", { results: user })
+            successResponse("SUCCESS", { results: data })
           );
         } else {
           res.status(404).json(
@@ -160,15 +160,15 @@ export const createData = async (req: Request, res: Response) => {
     if (avatar) formData["avatar"] = avatar;
     if (role) formData["role"] = role || "USER";
 
-    const isUserExist = await MUsers.querySoftDelete().findOne({"users.phone": phone});
+    const isUserExist = await user.Users.querySoftDelete().findOne({"users.phone": phone});
 
     if (isUserExist) {
       res.status(409).json(
         errorResponse("Phone already exists", { results: null })
       );
     } else {
-      const user = await MUsers.query().insert(formData);
-      const { password, verified_at, is_active, is_reviewer, ...rest } = user;
+      const data = await user.Users.query().insert(formData);
+      const { password, verified_at, is_active, is_reviewer, ...rest } = data;
       const updatedUser = { ...rest, isVerified: verified_at, isActive: is_active, isReviewer: is_reviewer };
       
       res.status(201).json(
@@ -216,7 +216,7 @@ export const updateData = async (req: Request, res: Response) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await MUsers.querySoftDelete().findById(userId).patch({
+    const data = await user.Users.querySoftDelete().findById(userId).patch({
       name,
       phone,
       username,
@@ -228,7 +228,7 @@ export const updateData = async (req: Request, res: Response) => {
       is_active: isActive,
       password: hashedPassword,
     });
-    res.status(200).json(user);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -239,7 +239,7 @@ export const updateData = async (req: Request, res: Response) => {
 export const deleteData = async (req: Request, res: Response) => {
   const userId = req.params.id;
   try {
-    await MUsers.softDelete(userId);
+    await user.Users.softDelete(userId);
 
     res.status(200).json(
       successResponse("Deleted", { results: null })

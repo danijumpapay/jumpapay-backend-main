@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import OrderAddresses from "../../../models/transaction/OrderAddresses.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { transaction } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const type: string | null = req.query?.type ? String(req.query.type)?.toUpperCase() : null;
 
   try {
-    const rawQuery = OrderAddresses.query()
+    const rawQuery = transaction.OrderAddresses.query()
       .select(
         "transaction.order_addresses.id",
         "transaction.order_addresses.order_id as orderId",
@@ -49,7 +49,7 @@ export const detailData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const data = await OrderAddresses.query()
+    const data = await transaction.OrderAddresses.query()
       .select(
         "transaction.order_addresses.id",
         "transaction.order_addresses.order_id as orderId",
@@ -79,7 +79,7 @@ export const createData = async (req: Request, res: Response) => {
   const { orderId, addressId, price, type } = req.body;
 
   try {
-    const data = await OrderAddresses.query().insert({
+    const data = await transaction.OrderAddresses.query().insert({
       order_id: orderId,
       address_id: addressId,
       price,
@@ -108,7 +108,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { orderId, addressId, price, type } = req.body;
 
   try {
-    const updated = await OrderAddresses.query().findById(id).patch({
+    const updated = await transaction.OrderAddresses.query().findById(id).patch({
       order_id: orderId,
       address_id: addressId,
       price,
@@ -133,7 +133,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    await OrderAddresses.query().deleteById(id);
+    await transaction.OrderAddresses.query().deleteById(id);
 
     res.status(200).json(
       successResponse("Deleted Successfully", { results: null })

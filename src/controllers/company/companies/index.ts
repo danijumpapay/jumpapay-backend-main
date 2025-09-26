@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import Companies from "../../../models/company/Companies.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { company } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = Companies.query()
+    const rawQuery = company.Companies.query()
       .select(
         "id",
         "user_id as userId",
@@ -55,7 +55,7 @@ export const detailData = async (req: Request, res: Response) => {
   const companyId = req.params.id;
 
   try {
-    const company = await Companies.query()
+    const results = await company.Companies.query()
       .select(
         "id",
         "user_id as userId",
@@ -70,8 +70,8 @@ export const detailData = async (req: Request, res: Response) => {
       )
       .findById(companyId);
 
-    if (company) {
-      res.status(200).json(successResponse("SUCCESS", { results: company }));
+    if (results) {
+      res.status(200).json(successResponse("SUCCESS", { results: results }));
     } else {
       res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
     }
@@ -92,7 +92,7 @@ export const createData = async (req: Request, res: Response) => {
   try {
     const id = generateId(name);
 
-    const isExist = await Companies.query().findById(id);
+    const isExist = await company.Companies.query().findById(id);
 
     if (isExist) {
       res.status(409).json(errorResponse("Company ID already exists", { results: null }));
@@ -110,12 +110,12 @@ export const createData = async (req: Request, res: Response) => {
         email
       };
 
-      const company = await Companies.query().insert(formData);
+      const results = await company.Companies.query().insert(formData);
 
       res.status(201).json(
         successResponse("SUCCESS", {
           errors: null,
-          results: company
+          results: results
         })
       );
     }
@@ -135,7 +135,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { userId, name, description, pic, logo, longitude, latitude, address, email } = req.body;
 
   try {
-    const updated = await Companies.query().findById(companyId).patch({
+    const updated = await company.Companies.query().findById(companyId).patch({
       user_id: userId,
       name,
       description,
@@ -148,7 +148,7 @@ export const updateData = async (req: Request, res: Response) => {
     });
 
     if (updated) {
-      const newData = await Companies.query()
+      const newData = await company.Companies.query()
         .select(
           "id",
           "user_id as userId",
@@ -182,7 +182,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const companyId = req.params.id;
 
   try {
-    const deleted = await Companies.query().deleteById(companyId);
+    const deleted = await company.Companies.query().deleteById(companyId);
 
     if (deleted) {
       res.status(200).json(successResponse("DELETED", { results: null }));

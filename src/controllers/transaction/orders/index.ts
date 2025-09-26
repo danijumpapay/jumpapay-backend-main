@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import MOrders from "../../../models/transaction/Orders.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { transaction } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MOrders.querySoftDelete()
+    const rawQuery = transaction.Orders.querySoftDelete()
       .select(
         "orders.id",
         "orders.user_id as userId",
@@ -57,7 +57,7 @@ export const detailData = async (req: Request, res: Response) => {
   const orderId = req.params.id;
 
   try {
-    const order = await MOrders.querySoftDelete()
+    const order = await transaction.Orders.querySoftDelete()
       .select(
         "orders.id",
         "orders.user_id as userId",
@@ -116,12 +116,12 @@ export const createData = async (req: Request, res: Response) => {
       payment_type: paymentType
     };
     
-    const isOrderExist = await MOrders.querySoftDelete().findOne({ booking_id: bookingId });
+    const isOrderExist = await transaction.Orders.querySoftDelete().findOne({ booking_id: bookingId });
 
     if (isOrderExist) {
       res.status(409).json(errorResponse("Booking ID already exists", { results: null }));
     } else {
-      const order = await MOrders.query().insert(formData);
+      const order = await transaction.Orders.query().insert(formData);
       res.status(201).json(successResponse("SUCCESS", { errors: null, results: order }));
     }
   } catch (error: unknown) {
@@ -144,7 +144,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { userId, bookingId, phone, cityId, source, paidAt, paymentType } = req.body;
 
   try {
-    const updatedOrder = await MOrders.querySoftDelete().findById(orderId).patch({
+    const updatedOrder = await transaction.Orders.querySoftDelete().findById(orderId).patch({
       user_id: userId,
       booking_id: bookingId,
       phone,
@@ -154,7 +154,7 @@ export const updateData = async (req: Request, res: Response) => {
       payment_type: paymentType
     });
 
-    const newData = await MOrders.querySoftDelete().findById(orderId);
+    const newData = await transaction.Orders.querySoftDelete().findById(orderId);
 
     res.status(200).json(
       successResponse("UPDATED", { results: newData })
@@ -174,7 +174,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const orderId = req.params.id;
 
   try {
-    await MOrders.softDelete(orderId);
+    await transaction.Orders.softDelete(orderId);
 
     res.status(200).json(
       successResponse("DELETED", { results: null })

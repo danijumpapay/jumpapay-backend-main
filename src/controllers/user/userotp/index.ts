@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import MUserOtp from "../../../models/user/UserOtp.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MUserOtp.query()
+    const rawQuery = user.UserOtp.query()
       .select(
         "user_otp.id",
         "user_otp.user_id",
@@ -54,7 +54,7 @@ export const detailData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const otp = await MUserOtp.query()
+    const otp = await user.UserOtp.query()
       .select(
         "user_otp.id",
         "user_otp.user_id",
@@ -86,7 +86,7 @@ export const createData = async (req: Request, res: Response) => {
   const { user_id, name, code, expired_at } = req.body;
 
   try {
-    const data = await MUserOtp.query().insert({
+    const data = await user.UserOtp.query().insert({
       user_id,
       name,
       code,
@@ -115,7 +115,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { name, code, expired_at } = req.body;
 
   try {
-    const updated = await MUserOtp.query().findById(id).patch({
+    const updated = await user.UserOtp.query().findById(id).patch({
       name,
       code,
       expired_at
@@ -139,7 +139,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    await MUserOtp.query().deleteById(id);
+    await user.UserOtp.query().deleteById(id);
 
     res.status(200).json(successResponse("Deleted Successfully", { results: null }));
   } catch (error: unknown) {

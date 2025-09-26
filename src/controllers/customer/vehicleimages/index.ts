@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import VehicleImages from "../../../models/customer/VehicleImages.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = VehicleImages.query()
+    const rawQuery = customer.VehicleImages.query()
       .select(
         "id",
         "vehicle_id as vehicleId",
@@ -52,7 +52,7 @@ export const detailData = async (req: Request, res: Response) => {
   const imageId = req.params.id;
 
   try {
-    const image = await VehicleImages.query()
+    const image = await customer.VehicleImages.query()
       .select(
         "id",
         "vehicle_id as vehicleId",
@@ -86,17 +86,15 @@ export const createData = async (req: Request, res: Response) => {
       vehicle_id: string;
       original_image?: string | null;
       image?: string | null;
-      created_at?: string | null;
     }
 
     const formData: FormData = {
       vehicle_id: vehicleId,
       original_image: originalImage,
-      image,
-      created_at: new Date().toISOString()
+      image
     };
 
-    const newImage = await VehicleImages.query().insert(formData);
+    const newImage = await customer.VehicleImages.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", {
@@ -130,7 +128,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { vehicleId, originalImage, image } = req.body;
 
   try {
-    const updated = await VehicleImages.query()
+    const updated = await customer.VehicleImages.query()
       .findById(imageId)
       .patch({
         vehicle_id: vehicleId,
@@ -139,7 +137,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await VehicleImages.query().findById(imageId);
+      const newData = await customer.VehicleImages.query().findById(imageId);
       res.status(200).json(
         successResponse("UPDATED", { results: newData })
       );
@@ -163,7 +161,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const imageId = req.params.id;
 
   try {
-    const image = await VehicleImages.query().findById(imageId);
+    const image = await customer.VehicleImages.query().findById(imageId);
 
     if (!image) {
       return res.status(404).json(
@@ -171,7 +169,7 @@ export const deleteData = async (req: Request, res: Response) => {
       );
     }
 
-    await VehicleImages.query().deleteById(imageId);
+    await customer.VehicleImages.query().deleteById(imageId);
 
     res.status(200).json(
       successResponse("DELETED", { results: null })

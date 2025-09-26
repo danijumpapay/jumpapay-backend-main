@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import MUserEmails from "../../../models/user/UserEmails.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MUserEmails.query()
+    const rawQuery = user.UserEmails.query()
       .select(
         "user_emails.id",
         "user_emails.user_id as userId",
@@ -52,7 +52,7 @@ export const detailData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const data = await MUserEmails.query()
+    const data = await user.UserEmails.query()
       .select(
         "user_emails.id",
         "user_emails.user_id as userId",
@@ -90,7 +90,7 @@ export const createData = async (req: Request, res: Response) => {
       verified_at: verifiedAt
     };
 
-    const data = await MUserEmails.query().insert(formData);
+    const data = await user.UserEmails.query().insert(formData);
 
     res.status(201).json(
       successResponse("Created Successfully", {
@@ -118,7 +118,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { userId, email, isPrimary, verifiedAt } = req.body;
 
   try {
-    const updated = await MUserEmails.query().findById(id).patch({
+    const updated = await user.UserEmails.query().findById(id).patch({
       user_id: userId,
       email,
       is_primary: isPrimary,
@@ -126,7 +126,7 @@ export const updateData = async (req: Request, res: Response) => {
     });
 
     if (updated) {
-      const newData = await MUserEmails.query()
+      const newData = await user.UserEmails.query()
         .select(
           "user_emails.id",
           "user_emails.user_id as userId",
@@ -156,7 +156,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const deleted = await MUserEmails.query().deleteById(id);
+    const deleted = await user.UserEmails.query().deleteById(id);
 
     if (deleted) {
       res.status(200).json(successResponse("Deleted Successfully", { results: null }));

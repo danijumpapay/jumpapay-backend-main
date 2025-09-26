@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import UsersActivities from "../../../models/user/UserActivities.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = UsersActivities.query()
+    const rawQuery = user.UserActivities.query()
       .select(
         "id",
         "user_id as userId",
@@ -50,7 +50,7 @@ export const detailData = async (req: Request, res: Response) => {
   const activityId = req.params.id;
 
   try {
-    const activity = await UsersActivities.query()
+    const activity = await user.UserActivities.query()
       .select(
         "id",
         "user_id as userId",
@@ -89,7 +89,7 @@ export const createData = async (req: Request, res: Response) => {
       activity_detail: activityDetail
     };
 
-    const activity = await UsersActivities.query().insert(formData);
+    const activity = await user.UserActivities.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", { results: activity })
@@ -110,7 +110,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { userId, activityName, activityDetail } = req.body;
 
   try {
-    const updated = await UsersActivities.query()
+    const updated = await user.UserActivities.query()
       .findById(activityId)
       .patch({
         user_id: userId,
@@ -119,7 +119,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await UsersActivities.query()
+      const newData = await user.UserActivities.query()
         .select(
           "id",
           "user_id as userId",
@@ -152,7 +152,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const activityId = req.params.id;
 
   try {
-    const deleted = await UsersActivities.query().deleteById(activityId);
+    const deleted = await user.UserActivities.query().deleteById(activityId);
 
     if (deleted) {
       res.status(200).json(

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import UserTokens from "../../../models/user/UserTokens.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = UserTokens.query()
+    const rawQuery = user.UserTokens.query()
       .select(
         "id",
         "user_id as userId",
@@ -59,7 +59,7 @@ export const detailData = async (req: Request, res: Response) => {
   const tokenId = req.params.id;
 
   try {
-    const token = await UserTokens.query()
+    const token = await user.UserTokens.query()
       .select(
         "id",
         "user_id as userId",
@@ -133,7 +133,7 @@ export const createData = async (req: Request, res: Response) => {
       is_expired: isExpired
     };
 
-    const userToken = await UserTokens.query().insert(formData);
+    const userToken = await user.UserTokens.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", { results: userToken })
@@ -174,7 +174,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updated = await UserTokens.query()
+    const updated = await user.UserTokens.query()
       .findById(tokenId)
       .patch({
         user_id: userId,
@@ -189,7 +189,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await UserTokens.query()
+      const newData = await user.UserTokens.query()
         .select(
           "id",
           "user_id as userId",
@@ -228,7 +228,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const tokenId = req.params.id;
 
   try {
-    const deleted = await UserTokens.query().deleteById(tokenId);
+    const deleted = await user.UserTokens.query().deleteById(tokenId);
 
     if (deleted) {
       res.status(200).json(

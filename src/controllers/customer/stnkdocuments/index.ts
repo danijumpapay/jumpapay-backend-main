@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import StnkDocuments from "../../../models/customer/StnkDocuments.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = StnkDocuments.querySoftDelete()
+    const rawQuery = customer.StnkDocuments.querySoftDelete()
       .select(
         "customer.stnk_documents.id",
         "customer.stnk_documents.user_id as userId",
@@ -56,7 +56,7 @@ export const detailData = async (req: Request, res: Response) => {
   const stnkId = req.params.id;
 
   try {
-    const stnk = await StnkDocuments.querySoftDelete()
+    const stnk = await customer.StnkDocuments.querySoftDelete()
       .select(
         "customer.stnk_documents.id",
         "customer.stnk_documents.user_id as userId",
@@ -131,7 +131,7 @@ export const createData = async (req: Request, res: Response) => {
       image
     };
 
-    const stnk = await StnkDocuments.query().insert(formData);
+    const stnk = await customer.StnkDocuments.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", { errors: null, results: stnk })
@@ -161,7 +161,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updated = await StnkDocuments.querySoftDelete()
+    const updated = await customer.StnkDocuments.querySoftDelete()
       .findById(stnkId)
       .patch({
         user_id: userId,
@@ -175,7 +175,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await StnkDocuments.querySoftDelete().findById(stnkId);
+      const newData = await customer.StnkDocuments.querySoftDelete().findById(stnkId);
       res.status(200).json(
         successResponse("UPDATED", { results: newData })
       );
@@ -199,7 +199,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const stnkId = req.params.id;
 
   try {
-    const stnk = await StnkDocuments.querySoftDelete().findById(stnkId);
+    const stnk = await customer.StnkDocuments.querySoftDelete().findById(stnkId);
 
     if (!stnk) {
       return res.status(404).json(
@@ -207,7 +207,7 @@ export const deleteData = async (req: Request, res: Response) => {
       );
     }
 
-    await StnkDocuments.softDelete(stnkId);
+    await customer.StnkDocuments.softDelete(stnkId);
 
     res.status(200).json(
       successResponse("DELETED", { results: null })

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import Addresses from "../../../models/customer/Addresses.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = Addresses.querySoftDelete()
+    const rawQuery = customer.Addresses.querySoftDelete()
       .select(
         "id",
         "user_id as userId",
@@ -62,7 +62,7 @@ export const detailData = async (req: Request, res: Response) => {
   const addressId = req.params.id;
 
   try {
-    const address = await Addresses.querySoftDelete()
+    const address = await customer.Addresses.querySoftDelete()
       .select(
         "id",
         "user_id as userId",
@@ -129,7 +129,7 @@ export const createData = async (req: Request, res: Response) => {
       is_return_address: isReturnAddress
     };
 
-    const address = await Addresses.query().insert(formData);
+    const address = await customer.Addresses.query().insert(formData);
 
     res.status(201).json(successResponse("SUCCESS", { results: address }));
   } catch (error: unknown) {
@@ -161,7 +161,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updated = await Addresses.query()
+    const updated = await customer.Addresses.query()
       .findById(addressId)
       .patch({
         user_id: userId,
@@ -178,7 +178,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await Addresses.query().findById(addressId);
+      const newData = await customer.Addresses.query().findById(addressId);
       res.status(200).json(successResponse("UPDATED", { results: newData }));
     } else {
       res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
@@ -198,7 +198,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const addressId = req.params.id;
 
   try {
-    await Addresses.softDelete(addressId);
+    await customer.Addresses.softDelete(addressId);
     res.status(200).json(successResponse("DELETED", { results: null }));
   } catch (error: unknown) {
     if (error instanceof Error) {

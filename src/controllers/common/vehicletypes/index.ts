@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import VehicleTypes from "../../../models/common/VehicleTypes.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { common } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = VehicleTypes.querySoftDelete()
+    const rawQuery = common.VehicleTypes.querySoftDelete()
       .select("id", "name")
       .page(page - 1, limit)
       .modify((queryBuilder) => {
@@ -47,7 +47,7 @@ export const detailData = async (req: Request, res: Response) => {
   const typeId = req.params.id;
 
   try {
-    const vehicleType = await VehicleTypes.querySoftDelete()
+    const vehicleType = await common.VehicleTypes.querySoftDelete()
       .select("id", "name")
       .findById(typeId);
 
@@ -81,14 +81,14 @@ export const createData = async (req: Request, res: Response) => {
   try {
     const formData = { id, name };
 
-    const isExist = await VehicleTypes.querySoftDelete().findById(id);
+    const isExist = await common.VehicleTypes.querySoftDelete().findById(id);
 
     if (isExist) {
       res.status(409).json(
         errorResponse("ID already exists", { results: null })
       );
     } else {
-      const newVehicleType = await VehicleTypes.query().insert(formData);
+      const newVehicleType = await common.VehicleTypes.query().insert(formData);
 
       res.status(201).json(
         successResponse("SUCCESS", {
@@ -117,10 +117,10 @@ export const updateData = async (req: Request, res: Response) => {
   const { name } = req.body;
 
   try {
-    const updated = await VehicleTypes.querySoftDelete().findById(typeId).patch({ name });
+    const updated = await common.VehicleTypes.querySoftDelete().findById(typeId).patch({ name });
 
     if (updated) {
-      const newData = await VehicleTypes.querySoftDelete().findById(typeId);
+      const newData = await common.VehicleTypes.querySoftDelete().findById(typeId);
 
       res.status(200).json(
         successResponse("UPDATED", { results: newData })
@@ -149,7 +149,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const typeId = req.params.id;
 
   try {
-    await VehicleTypes.softDelete(Number(typeId));
+    await common.VehicleTypes.softDelete(Number(typeId));
 
     res.status(200).json(
       successResponse("Deleted", { results: null })

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import BpkbDocuments from "../../../models/customer/BpkbDocuments.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = BpkbDocuments.querySoftDelete()
+    const rawQuery = customer.BpkbDocuments.querySoftDelete()
       .select(
         "bpkb_documents.id",
         "bpkb_documents.user_id as userId",
@@ -55,7 +55,7 @@ export const detailData = async (req: Request, res: Response) => {
   const documentId = req.params.id;
 
   try {
-    const document = await BpkbDocuments.querySoftDelete()
+    const document = await customer.BpkbDocuments.querySoftDelete()
       .select(
         "bpkb_documents.id",
         "bpkb_documents.user_id as userId",
@@ -122,7 +122,7 @@ export const createData = async (req: Request, res: Response) => {
       is_active: isActive
     };
 
-    const document = await BpkbDocuments.query().insert(formData);
+    const document = await customer.BpkbDocuments.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", {
@@ -165,7 +165,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updated = await BpkbDocuments.querySoftDelete().findById(documentId).patch({
+    const updated = await customer.BpkbDocuments.querySoftDelete().findById(documentId).patch({
       user_id: userId,
       vehicle_id: vehicleId,
       bpkb_number: bpkbNumber,
@@ -176,7 +176,7 @@ export const updateData = async (req: Request, res: Response) => {
     });
 
     if (updated) {
-      const newData = await BpkbDocuments.query().findById(documentId);
+      const newData = await customer.BpkbDocuments.query().findById(documentId);
       res.status(200).json(
         successResponse("UPDATED", { results: newData })
       );
@@ -204,7 +204,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const documentId = req.params.id;
 
   try {
-    await BpkbDocuments.softDelete(documentId);
+    await customer.BpkbDocuments.softDelete(documentId);
 
     res.status(200).json(
       successResponse("Deleted", { results: null })

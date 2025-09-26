@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import Plates from "../../../models/common/Plates.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { common } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = Plates.querySoftDelete()
+    const rawQuery = common.Plates.querySoftDelete()
       .select(
         "id",
         "name",
@@ -55,7 +55,7 @@ export const detailData = async (req: Request, res: Response) => {
   const plateId = req.params.id;
 
   try {
-    const plate = await Plates.querySoftDelete()
+    const plate = await common.Plates.querySoftDelete()
       .select(
         "id",
         "name",
@@ -101,14 +101,14 @@ export const createData = async (req: Request, res: Response) => {
       is_active: isActive
     };
 
-    const isPlateExist = await Plates.querySoftDelete().findById(id);
+    const isPlateExist = await common.Plates.querySoftDelete().findById(id);
 
     if (isPlateExist) {
       res.status(409).json(
         errorResponse("Plate ID already exists", { results: null })
       );
     } else {
-      const newPlate = await Plates.query().insert(formData);
+      const newPlate = await common.Plates.query().insert(formData);
       res.status(201).json(
         successResponse("SUCCESS", { results: newPlate })
       );
@@ -133,7 +133,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { name, icon, description, isActive } = req.body;
 
   try {
-    const updated = await Plates.querySoftDelete().findById(plateId).patch({
+    const updated = await common.Plates.querySoftDelete().findById(plateId).patch({
       name,
       icon,
       description,
@@ -168,7 +168,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const plateId = req.params.id;
 
   try {
-    await Plates.softDelete(Number(plateId));
+    await common.Plates.softDelete(Number(plateId));
 
     res.status(200).json(
       successResponse("DELETED", { results: null })

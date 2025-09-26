@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import CompanyWhatsapp from "../../../models/company/CompanyWhatsapp.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { company } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = CompanyWhatsapp.querySoftDelete()
+    const rawQuery = company.CompanyWhatsapp.querySoftDelete()
       .select(
         "id",
         "company_id as companyId",
@@ -69,7 +69,7 @@ export const detailData = async (req: Request, res: Response) => {
   const whatsappId = req.params.id;
 
   try {
-    const whatsapp = await CompanyWhatsapp.querySoftDelete()
+    const whatsapp = await company.CompanyWhatsapp.querySoftDelete()
       .select(
         "id",
         "company_id as companyId",
@@ -173,14 +173,14 @@ export const createData = async (req: Request, res: Response) => {
       is_active: isActive
     };
 
-    const isWhatsappExist = await CompanyWhatsapp.querySoftDelete().findOne({ phone });
+    const isWhatsappExist = await company.CompanyWhatsapp.querySoftDelete().findOne({ phone });
 
     if (isWhatsappExist) {
       res.status(409).json(
         errorResponse("Phone already exists", { results: null })
       );
     } else {
-      const whatsapp = await CompanyWhatsapp.query().insert(formData);
+      const whatsapp = await company.CompanyWhatsapp.query().insert(formData);
 
       res.status(201).json(
         successResponse("SUCCESS", {
@@ -224,7 +224,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const whatsapp = await CompanyWhatsapp.querySoftDelete()
+    const whatsapp = await company.CompanyWhatsapp.querySoftDelete()
       .findById(whatsappId)
       .patch({
         company_id: companyId,
@@ -244,7 +244,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (whatsapp) {
-      const updatedWhatsapp = await CompanyWhatsapp.querySoftDelete().findById(whatsappId);
+      const updatedWhatsapp = await company.CompanyWhatsapp.querySoftDelete().findById(whatsappId);
 
       res.status(200).json(
         successResponse("UPDATED", { results: updatedWhatsapp })
@@ -273,7 +273,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const whatsappId = req.params.id;
 
   try {
-    await CompanyWhatsapp.softDelete(whatsappId);
+    await company.CompanyWhatsapp.softDelete(whatsappId);
 
     res.status(200).json(
       successResponse("Deleted", { results: null })

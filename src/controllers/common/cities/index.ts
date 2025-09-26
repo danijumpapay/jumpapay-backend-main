@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import Cities from "../../../models/common/Cities.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { common } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = Cities.querySoftDelete()
+    const rawQuery = common.Cities.querySoftDelete()
       .select(
         "cities.id",
         "cities.name as cityName",
@@ -47,7 +47,7 @@ export const detailData = async (req: Request, res: Response) => {
   const cityId = Number(req.params.id);
 
   try {
-    const city = await Cities.querySoftDelete()
+    const city = await common.Cities.querySoftDelete()
       .select(
         "cities.id",
         "cities.name as cityName",
@@ -77,7 +77,7 @@ export const createData = async (req: Request, res: Response) => {
   try {
     const formData = { id, name, icon };
 
-    const newCity = await Cities.query().insert(formData);
+    const newCity = await common.Cities.query().insert(formData);
 
     res.status(201).json(successResponse("SUCCESS", { results: newCity }));
   } catch (error: unknown) {
@@ -96,7 +96,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { name, icon } = req.body;
 
   try {
-    const updated = await Cities.query().findById(cityId).patch({ name, icon });
+    const updated = await common.Cities.query().findById(cityId).patch({ name, icon });
 
     if (updated) {
       res.status(200).json(successResponse("UPDATED", { results: updated }));
@@ -118,7 +118,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const cityId = Number(req.params.id);
 
   try {
-    await Cities.softDelete(cityId);
+    await common.Cities.softDelete(cityId);
 
     res.status(200).json(successResponse("DELETED", { results: null }));
   } catch (error: unknown) {

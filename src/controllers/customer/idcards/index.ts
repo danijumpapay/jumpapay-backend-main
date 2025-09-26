@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import IdCards from "../../../models/customer/IdCards.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = IdCards.querySoftDelete()
+    const rawQuery = customer.IdCards.querySoftDelete()
       .select(
         "customer.id_cards.id",
         "customer.id_cards.user_id as userId",
@@ -58,7 +58,7 @@ export const detailData = async (req: Request, res: Response) => {
   const idCardId = req.params.id;
 
   try {
-    const idCard = await IdCards.querySoftDelete()
+    const idCard = await customer.IdCards.querySoftDelete()
       .select(
         "customer.id_cards.id",
         "customer.id_cards.user_id as userId",
@@ -115,7 +115,7 @@ export const createData = async (req: Request, res: Response) => {
       image,
     };
 
-    const idCard = await IdCards.query().insert(formData);
+    const idCard = await customer.IdCards.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", {
@@ -152,7 +152,7 @@ export const updateData = async (req: Request, res: Response) => {
       return null;
     };
 
-    const updated = await IdCards.querySoftDelete()
+    const updated = await customer.IdCards.querySoftDelete()
       .findById(idCardId)
       .patch({
         user_id: userId,
@@ -184,7 +184,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const idCardId = req.params.id;
 
   try {
-    await IdCards.softDelete(idCardId);
+    await customer.IdCards.softDelete(idCardId);
 
     res.status(200).json(successResponse("Deleted", { results: null }));
   } catch (error: unknown) {

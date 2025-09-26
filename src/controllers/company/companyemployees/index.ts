@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import CompanyEmployees from "../../../models/company/CompanyEmployees.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { company } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -11,7 +11,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = CompanyEmployees.query()
+    const rawQuery = company.CompanyEmployees.query()
       .select(
         "company_employees.id",
         "company_employees.user_id as userId",
@@ -56,7 +56,7 @@ export const detailData = async (req: Request, res: Response) => {
   const employeeId = req.params.id;
 
   try {
-    const employee = await CompanyEmployees.query()
+    const employee = await company.CompanyEmployees.query()
       .select(
         "company_employees.id",
         "company_employees.user_id as userId",
@@ -109,7 +109,7 @@ export const createData = async (req: Request, res: Response) => {
       role: upperRole as "ADMIN" | "CS" | "SUPERVISOR"
     };
 
-    const employee = await CompanyEmployees.query().insert(formData);
+    const employee = await company.CompanyEmployees.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", {
@@ -145,7 +145,7 @@ export const updateData = async (req: Request, res: Response) => {
       );
     }
 
-    const employee = await CompanyEmployees.query().findById(employeeId).patch({
+    const employee = await company.CompanyEmployees.query().findById(employeeId).patch({
       user_id: userId,
       company_id: companyId,
       role: upperRole as "ADMIN" | "CS" | "SUPERVISOR"
@@ -173,7 +173,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const employeeId = req.params.id;
 
   try {
-    await CompanyEmployees.query().deleteById(employeeId);
+    await company.CompanyEmployees.query().deleteById(employeeId);
 
     res.status(200).json(
       successResponse("Deleted", { results: null })

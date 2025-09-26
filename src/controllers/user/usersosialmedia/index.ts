@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import MUserSosialMedia from "../../../models/user/UserSosialMedia.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { user } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MUserSosialMedia.query()
+    const rawQuery = user.UserSosialMedia.query()
       .select(
         "user_sosial_media.id",
         "user_sosial_media.user_id",
@@ -52,7 +52,7 @@ export const detailData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const data = await MUserSosialMedia.query()
+    const data = await user.UserSosialMedia.query()
       .select(
         "user_sosial_media.id",
         "user_sosial_media.user_id",
@@ -83,7 +83,7 @@ export const createData = async (req: Request, res: Response) => {
   const { user_id, sosial, link } = req.body;
 
   try {
-    const data = await MUserSosialMedia.query().insert({
+    const data = await user.UserSosialMedia.query().insert({
       user_id,
       sosial,
       link
@@ -115,14 +115,14 @@ export const updateData = async (req: Request, res: Response) => {
   const { user_id, sosial, link } = req.body;
 
   try {
-    const updated = await MUserSosialMedia.query().findById(id).patch({
+    const updated = await user.UserSosialMedia.query().findById(id).patch({
       user_id,
       sosial,
       link
     });
 
     if (updated) {
-      const newData = await MUserSosialMedia.query().findById(id);
+      const newData = await user.UserSosialMedia.query().findById(id);
 
       res.status(200).json(
         successResponse("Updated Successfully", { results: newData })
@@ -147,7 +147,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    await MUserSosialMedia.query().deleteById(id);
+    await user.UserSosialMedia.query().deleteById(id);
 
     res.status(200).json(
       successResponse("Deleted Successfully", { results: null })

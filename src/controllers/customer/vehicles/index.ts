@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import Vehicles from "../../../models/customer/Vehicles.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
-import { generateId } from "../../../utils/helpers";
+import { customer } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { generateId } from "@utils/helpers";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = Vehicles.querySoftDelete()
+    const rawQuery = customer.Vehicles.querySoftDelete()
       .select(
         "customer.vehicles.id",
         "customer.vehicles.user_id as userId",
@@ -64,7 +64,7 @@ export const detailData = async (req: Request, res: Response) => {
   const vehicleId = req.params.id;
 
   try {
-    const vehicle = await Vehicles.querySoftDelete()
+    const vehicle = await customer.Vehicles.querySoftDelete()
       .select(
         "customer.vehicles.id",
         "customer.vehicles.user_id as userId",
@@ -147,7 +147,7 @@ export const createData = async (req: Request, res: Response) => {
       chassis_number: chassisNumber || null
     };
 
-    const vehicle = await Vehicles.query().insert(formData);
+    const vehicle = await customer.Vehicles.query().insert(formData);
 
     res.status(201).json(
       successResponse("SUCCESS", {
@@ -195,7 +195,7 @@ export const updateData = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    const updated = await Vehicles.querySoftDelete()
+    const updated = await customer.Vehicles.querySoftDelete()
       .findById(vehicleId)
       .patch({
         user_id: userId,
@@ -212,7 +212,7 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      const newData = await Vehicles.querySoftDelete().findById(vehicleId);
+      const newData = await customer.Vehicles.querySoftDelete().findById(vehicleId);
       res.status(200).json(successResponse("UPDATED", { results: newData }));
     } else {
       res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
@@ -232,13 +232,13 @@ export const deleteData = async (req: Request, res: Response) => {
   const vehicleId = req.params.id;
 
   try {
-    const vehicle = await Vehicles.querySoftDelete().findById(vehicleId);
+    const vehicle = await customer.Vehicles.querySoftDelete().findById(vehicleId);
 
     if (!vehicle) {
       return res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
     }
 
-    await Vehicles.softDelete(vehicleId);
+    await customer.Vehicles.softDelete(vehicleId);
 
     res.status(200).json(successResponse("DELETED", { results: null }));
   } catch (error: unknown) {

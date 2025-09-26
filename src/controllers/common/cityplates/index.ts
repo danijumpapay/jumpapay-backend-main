@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import CityPlates from "../../../models/common/CityPlates.model";
-import { paginationResponse, successResponse, errorResponse } from "../../../utils/response";
+import { common } from "@jumpapay/jumpapay-models";
+import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -9,7 +9,7 @@ export const listData = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = CityPlates.query()
+    const rawQuery = common.CityPlates.query()
       .select(
         "common.city_plates.id",
         "common.city_plates.city_id",
@@ -51,7 +51,7 @@ export const detailData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    const data = await CityPlates.query()
+    const data = await common.CityPlates.query()
       .select(
         "common.city_plates.id",
         "common.city_plates.city_id",
@@ -80,7 +80,7 @@ export const createData = async (req: Request, res: Response) => {
   const { city_id, plate_id, is_active } = req.body;
 
   try {
-    const data = await CityPlates.query().insert({
+    const data = await common.CityPlates.query().insert({
       city_id,
       plate_id,
       is_active: is_active ?? true,
@@ -108,7 +108,7 @@ export const updateData = async (req: Request, res: Response) => {
   const { city_id, plate_id, is_active } = req.body;
 
   try {
-    const updated = await CityPlates.query().findById(id).patch({
+    const updated = await common.CityPlates.query().findById(id).patch({
       city_id,
       plate_id,
       is_active,
@@ -132,7 +132,7 @@ export const deleteData = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    await CityPlates.query().deleteById(id);
+    await common.CityPlates.query().deleteById(id);
 
     res.status(200).json(
       successResponse("Deleted Successfully", { results: null })
