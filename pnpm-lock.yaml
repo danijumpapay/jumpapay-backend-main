@@ -15,8 +15,8 @@ importers:
         specifier: ^17.1.1
         version: 17.1.1
       '@jumpapay/jumpapay-models':
-        specifier: ^2.0.0
-        version: 2.0.0(pg@8.16.3)
+        specifier: ^2.0.1
+        version: 2.0.1(pg@8.16.3)
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -84,6 +84,9 @@ importers:
       '@types/node':
         specifier: ^18.15.11
         version: 18.19.127
+      '@types/pg':
+        specifier: ^8.15.5
+        version: 8.15.5
       concurrently:
         specifier: ^8.0.1
         version: 8.2.2
@@ -152,8 +155,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@jumpapay/jumpapay-models@2.0.0':
-    resolution: {integrity: sha512-7yj7jxXsrXXirbG6UL+FsDLSfrP0SrnX09FIr4aK5BJEg48icIYER5CdRu7t1eSUlCFfZ//qtdv4VjygCyVEEw==, tarball: https://npm.pkg.github.com/download/@jumpapay/jumpapay-models/2.0.0/4ceeaacb6e6fe1a8063d27b4af3750362231b241}
+  '@jumpapay/jumpapay-models@2.0.1':
+    resolution: {integrity: sha512-mhHTrKlGjfFDNecQ0FOQjgiquw0/2nGZORyUKD9vT9j70l20f4FiGOT7Jos+IYRcF0T3i+syuWu1/3MRG+E1Ow==, tarball: https://npm.pkg.github.com/download/@jumpapay/jumpapay-models/2.0.1/68cbb412d50fa56866b97535778249b6a84c0fe2}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -256,6 +259,9 @@ packages:
 
   '@types/node@24.5.2':
     resolution: {integrity: sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==}
+
+  '@types/pg@8.15.5':
+    resolution: {integrity: sha512-LF7lF6zWEKxuT3/OR8wAZGzkg4ENGXFNyiV/JeOt9z5B+0ZVwbql9McqX5c/WStFq1GaGso7H1AzP/qSzmlCKQ==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -1527,7 +1533,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jumpapay/jumpapay-models@2.0.0(pg@8.16.3)':
+  '@jumpapay/jumpapay-models@2.0.1(pg@8.16.3)':
     dependencies:
       knex: 3.1.0(pg@8.16.3)
       objection: 3.1.4(knex@3.1.0(pg@8.16.3))
@@ -1652,6 +1658,12 @@ snapshots:
   '@types/node@24.5.2':
     dependencies:
       undici-types: 7.12.0
+
+  '@types/pg@8.15.5':
+    dependencies:
+      '@types/node': 18.19.127
+      pg-protocol: 1.10.3
+      pg-types: 2.2.0
 
   '@types/qs@6.14.0': {}
 

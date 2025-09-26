@@ -4,8 +4,14 @@ import cors from "cors";
 import routesV1 from "./src/routes/v1/index";
 import { initializeModels } from "@jumpapay/jumpapay-models";
 import knex from "@config/connection"; 
+import { types } from "pg";
+const TIMESTAMPTZ_OID = 1184;
+const TIMESTAMP_OID = 1114;
 
 dotenv.config();
+
+types.setTypeParser(TIMESTAMPTZ_OID, (val) => val);
+types.setTypeParser(TIMESTAMP_OID, (val) => val); 
 
 const app: Application = express();
 const port = process.env.PORT || 3000;

@@ -29,7 +29,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.19.0",
     "@hapi/joi": "^17.1.1",
-    "@jumpapay/jumpapay-models": "^2.0.0",
+    "@jumpapay/jumpapay-models": "^2.0.1",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
@@ -54,6 +54,7 @@
     "@types/knex": "^0.16.1",
     "@types/multer": "^2.0.0",
     "@types/node": "^18.15.11",
+    "@types/pg": "^8.15.5",
     "concurrently": "^8.0.1",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
