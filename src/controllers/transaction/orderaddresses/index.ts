@@ -79,17 +79,17 @@ export const createData = async (req: Request, res: Response) => {
   const { orderId, addressId, price, type } = req.body;
 
   try {
-    const data = await transaction.OrderAddresses.query().insert({
-      order_id: orderId,
-      address_id: addressId,
-      price,
-      type,
-    });
+    // const data = await transaction.OrderAddresses.query().insert({
+    //   order_id: orderId,
+    //   address_id: addressId,
+    //   price,
+    //   type,
+    // });
 
     res.status(201).json(
       successResponse("Created Successfully", {
         errors: null,
-        results: data,
+        results: null,
       })
     );
   } catch (error: unknown) {
@@ -105,14 +105,13 @@ export const createData = async (req: Request, res: Response) => {
 //#region - updateData
 export const updateData = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { orderId, addressId, price, type } = req.body;
+  const { orderId, addressId, price } = req.body;
 
   try {
     const updated = await transaction.OrderAddresses.query().findById(id).patch({
       order_id: orderId,
       address_id: addressId,
       price,
-      type,
     });
 
     res.status(200).json(
