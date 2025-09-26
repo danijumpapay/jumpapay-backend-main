@@ -66,6 +66,7 @@ export const listUntakenChats = async (req: Request, res: Response) => {
       })
     );
   } catch (error: unknown) {
+    console.log("ERROR ===>", error);
     if (error instanceof Error) {
       res.status(500).json(
         errorResponse(error?.message, { results: null })

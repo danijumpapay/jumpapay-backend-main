@@ -119,6 +119,7 @@ export const listMessages = async (req: Request, res: Response) => {
       ));
     }
   } catch (error: any) {
+    console.log("ERROR ===>", error);
     return res.status(500).json(errorResponse(error.message || "Internal Server Error", {}));
   }
 };
