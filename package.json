@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register dist/index.js",
+    "prod:start": "node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q --exec ts-node -r tsconfig-paths/register dist/index.js\"",
     "build": "npx tsc && tsc-alias",
     "migrate": "npx knex migrate:latest --env development --knexfile knexfile.ts",
