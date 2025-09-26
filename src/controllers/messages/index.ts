@@ -1,12 +1,10 @@
 import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
-import { esClient } from "@config/elastic";
 import { convertKeysToCamel, uploadToS3 } from "@utils/helpers";
 import crypto from "crypto";
 import axiosInstance from "@config/axios";
 import { AxiosInstance } from "axios";
-import Merchants from "@root/src/models/whatsapp/Merchants.model";
-import MChats from "@models/whatsapp/Chats.model";
+import { whatsapp as whatsappSchema } from "@jumpapay/jumpapay-models";
 import { Multer } from 'multer';
 
 interface WhatsAppMap {
@@ -26,7 +24,6 @@ export const listMessages = async (req: Request, res: Response) => {
   const search = req.query.s ? String(req.query.s).toLowerCase() : null;
   const limit = Number(req.query.limit) || 10;
   const page = Number(req.query.page) || 1;
-  const fromIndex = (page - 1) * limit;
   const password: string | null = req.headers?.password as string || "";
   let isError = false;
 
@@ -51,21 +48,34 @@ export const listMessages = async (req: Request, res: Response) => {
     }
 
     const executeAll = await Promise.all([
-      esClient.search({
-        index: "messages",
-        from: fromIndex,
-        size: limit,
-        query: query,
-        sort: [
-          { created_at: { order: "desc" } }
-        ]
-      }),
-      MChats.query()
+      whatsappSchema.Messages.query()
+        .select(
+          "id",
+          "ref_id as refId",
+          "room_id as roomId",
+          "phone_id as phoneId",
+          "from",
+          "to",
+          "header",
+          "body",
+          "footer",
+          "type",
+          "status",
+          "is_read as isRead",
+          "line",
+          "deleted_at as deletedAt",
+          "created_at as createdAt",
+          "updated_at as updatedAt",
+        )
+        .where("room_id", roomId)
+        .orderBy("created_at", "DESC")
+        .page(page - 1, limit),
+      whatsappSchema.Chats.query()
         .select("id", "password", "name", "avatar")
         .findOne("id", roomId)
     ]);
 
-    const dataChat = executeAll[1] as MChats;
+    const dataChat = executeAll[1] as whatsappSchema.Chats;
 
     if (dataChat.password && password) {
       if (dataChat.password !== crypto.createHash("md5").update(password).digest("hex")) {
@@ -77,26 +87,14 @@ export const listMessages = async (req: Request, res: Response) => {
 
     if (!isError) {
       if (page === 1) {
-        const updateChat = MChats.query().patch({
+        const updateChat = whatsappSchema.Chats.query().patch({
           total_unread_message: 0,
           is_read: true,
         }).where("id", roomId);
 
-        const updateBulkMessage = esClient.updateByQuery({
-          index: "messages",
-          body: {
-            script: {
-              source: "ctx._source.is_read = true",
-              lang: "painless",
-            },
-            query: {
-              term: {
-                room_id: roomId,
-              },
-            },
-          },
-          refresh: false, // set true if you want to refresh the index immediately
-        });
+        const updateBulkMessage = whatsappSchema.Messages.query().patch({
+          is_read: true
+        }).where("room_id", roomId);
 
         await Promise.all([
           updateChat,
@@ -104,13 +102,12 @@ export const listMessages = async (req: Request, res: Response) => {
         ]);
       }
 
-      const hits = executeAll[0].hits.hits.map(hit => hit._source);
-      const total = executeAll[0].hits.total as { value: number };
+      const { total, results } = executeAll[0];
 
       return res.status(200).json(successResponse("SUCCESS", {
         results: {
-          pagination: paginationResponse(page, limit, total.value),
-          data: convertKeysToCamel(hits)
+          pagination: paginationResponse(page, limit, Number(total) as number),
+          data: convertKeysToCamel(results)
         }
       }));
     } else {
@@ -146,12 +143,12 @@ export const sendMessage = async (req: Request, res: Response) => {
 
   if (whatsapp[phoneId]) {
     try {
-      const findChat = await MChats.query()
+      const findChat = await whatsappSchema.Chats.query()
         .select("id", "password", "name", "avatar")
         .findOne({
           "phone_id": phoneId,
           "phone": to
-        }) as MChats;
+        }) as whatsappSchema.Chats;
 
       if (findChat) {
         if (findChat.password && password) {
@@ -251,7 +248,7 @@ export const takeChat = async (req: Request, res: Response) => {
   const defaultPassword = "12345678";
 
   try {
-    const updateChat = await MChats.query().patch({
+    const updateChat = await whatsappSchema.Chats.query().patch({
       password: crypto.createHash("md5").update(defaultPassword).digest("hex"),
     }).where("id", id);
 

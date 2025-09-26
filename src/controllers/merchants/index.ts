@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
-import MMerchants from "@models/whatsapp/Merchants.model";
+import { whatsapp } from "@jumpapay/jumpapay-models";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -8,7 +8,7 @@ export const listData = async (req: Request, res: Response) => {
   const page: number = Number(req.query.page) || 1;
 
   try {
-    const rawQuery = MMerchants.query()
+    const rawQuery = whatsapp.Merchants.query()
       .select(
         "merchants.id",
         "merchants.name",

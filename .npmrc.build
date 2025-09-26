@@ -1,0 +1,4 @@
+# .npmrc.build
+
+@jumpapay:registry=https://npm.pkg.github.com/
+//npm.pkg.github.com/:_authToken=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

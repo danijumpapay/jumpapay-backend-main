@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 import { generateId } from "@utils/helpers";
-import MChats from "@models/whatsapp/Chats.model";
+import { whatsapp } from "@jumpapay/jumpapay-models";
 import { raw } from "objection";
 
 const chatColumns = [
@@ -30,7 +30,7 @@ export const listUntakenChats = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MChats.query()
+    const rawQuery = whatsapp.Chats.query()
       .select(chatColumns)
       .leftJoin("user.users", "users.id", "chats.taken_by")
       .orderBy("chats.last_message_at", "DESC")
@@ -90,7 +90,7 @@ export const listTakenChats = async (req: Request, res: Response) => {
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
-    const rawQuery = MChats.query()
+    const rawQuery = whatsapp.Chats.query()
       .select(chatColumns)
       .leftJoin("user.users", "users.id", "chats.taken_by")
       .orderBy("chats.last_message_at", "DESC")
