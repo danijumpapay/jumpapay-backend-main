@@ -1,4 +1,4 @@
-import Knex from "knex";
+import Knex, { knex } from "knex";
 import knexConfig from "../../knexfile";
 
 const db = Knex(knexConfig);

@@ -2,6 +2,8 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import routesV1 from "./src/routes/v1/index";
+import { initializeModels } from "@jumpapay/jumpapay-models";
+import knex from "@config/connection"; 
 
 dotenv.config();
 
@@ -11,6 +13,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+initializeModels(knex);
 
 app.use("/api/v1", routesV1);
 
