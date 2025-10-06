@@ -2,15 +2,16 @@ import { Request, Response } from "express";
 import { paginationResponse, successResponse, errorResponse } from "@utils/response";
 import { convertKeysToCamel, uploadToS3 } from "@utils/helpers";
 import crypto from "crypto";
-import axiosInstance from "@config/axios";
+import axiosInstance, { whatsappMiddlewareInstance } from "@config/axios";
 import { AxiosInstance } from "axios";
 import { whatsapp as whatsappSchema } from "@jumpapay/jumpapay-models";
-import { Multer } from 'multer';
+import { Multer } from "multer";
 
 interface WhatsAppMap {
   [key: number | string]: AxiosInstance;
 }
 
+const whatsappInstance = whatsappMiddlewareInstance();
 const whatsapp: WhatsAppMap = {
   687908507737544: axiosInstance("b2c"),
   757560927433872: axiosInstance("b2b")
@@ -141,103 +142,101 @@ export const sendMessage = async (req: Request, res: Response) => {
     return res.status(400).json(errorResponse("Only one audio file allowed", {}));
   }
 
-  if (whatsapp[phoneId]) {
-    try {
-      const findChat = await whatsappSchema.Chats.query()
-        .select("id", "password", "name", "avatar")
-        .findOne({
-          "phone_id": phoneId,
-          "phone": to
-        }) as whatsappSchema.Chats;
+  // Restu's note
+  // Someone please clean this endpoint code
+  try {
+    const findChat = await whatsappSchema.Chats.query()
+      .select("id", "password", "name", "avatar")
+      .findOne({
+        "phone_id": phoneId,
+        "phone": to
+      }) as whatsappSchema.Chats;
 
-      if (findChat) {
-        if (findChat.password && password) {
-          if (findChat.password !== crypto.createHash("md5").update(password).digest("hex")) {
-            isError = true;
-          }
-        } else if (findChat.password && !password) {
+    if (findChat) {
+      if (findChat.password && password) {
+        if (findChat.password !== crypto.createHash("md5").update(password).digest("hex")) {
           isError = true;
         }
+      } else if (findChat.password && !password) {
+        isError = true;
       }
+    }
 
-      if (!isError) {
-        if (files.length === 0) {
-          const sendMessage = await whatsapp[phoneId].post("message/sendText", {
+    if (!isError) {
+      if (files.length === 0) {
+        const sendMessage = await whatsappInstance.post(`message/sendText/${phoneId}`, {
+          to: to,
+          message: message
+        });
+
+        return res.status(200).json(successResponse("SUCCESS", {
+          errors: null,
+          results: {
+            ...sendMessage.data.results,
+            file: {
+              url: "",
+              filename: "",
+            }
+          },
+        }));
+      } else {
+        const uploadedFiles: any = {
+          image: null,
+          audio: null,
+          document: null
+        };
+
+        if (images[0]) {
+          uploadedFiles.image = await uploadToS3(images[0]);
+        }
+
+        if (audios[0]) {
+          uploadedFiles.audio = await uploadToS3(audios[0]);
+        }
+
+        if (documents[0]) {
+          uploadedFiles.document = await uploadToS3(documents[0]);
+        }
+
+        if (images.length > 0) {
+          const sendMessage = await whatsappInstance.post(`message/sendImage/${phoneId}`, {
             to: to,
-            message: message
+            message: message,
+            url: uploadedFiles.image.url
           });
 
           return res.status(200).json(successResponse("SUCCESS", {
             errors: null,
             results: {
               ...sendMessage.data.results,
-              file: {
-                url: "",
-                filename: "",
-              }
+              file: uploadedFiles?.image || ""
+            },
+          }));
+        } else if (documents.length > 0) {
+          const sendMessage = await whatsappInstance.post(`message/sendDocument/${phoneId}`, {
+            to: to,
+            message: message,
+            file: uploadedFiles.document
+          });
+
+          return res.status(200).json(successResponse("SUCCESS", {
+            errors: null,
+            results: {
+              ...sendMessage.data.results,
+              file: uploadedFiles.document
             },
           }));
         } else {
-          const uploadedFiles: any = {
-            image: null,
-            audio: null,
-            document: null
-          };
-
-          if (images[0]) {
-            uploadedFiles.image = await uploadToS3(images[0]);
-          }
-
-          if (audios[0]) {
-            uploadedFiles.audio = await uploadToS3(audios[0]);
-          }
-
-          if (documents[0]) {
-            uploadedFiles.document = await uploadToS3(documents[0]);
-          }
-
-          if (images.length > 0) {
-            const sendMessage = await whatsapp[phoneId].post("message/sendImage", {
-              to: to,
-              message: message,
-              url: uploadedFiles.image.url
-            });
-
-            return res.status(200).json(successResponse("SUCCESS", {
-              errors: null,
-              results: {
-                ...sendMessage.data.results,
-                file: uploadedFiles?.image || ""
-              },
-            }));
-          } else if (documents.length > 0) {
-            const sendMessage = await whatsapp[phoneId].post("message/sendDocument", {
-              to: to,
-              message: message,
-              file: uploadedFiles.document
-            });
-
-            return res.status(200).json(successResponse("SUCCESS", {
-              errors: null,
-              results: {
-                ...sendMessage.data.results,
-                file: uploadedFiles.document
-              },
-            }));
-          } else {
-            return res.status(401).json(errorResponse("Your file is not supported", {}));
-          }
+          return res.status(401).json(errorResponse("Your file is not supported", {}));
         }
-      } else {
-        return res.status(401).json(errorResponse(
-          findChat.password && password ? "Password is not match" : "Password is Required", {}
-        ));
       }
-    } catch (error: any) {
-      return res.status(500).json(errorResponse(error.message || "Internal Server Error", {}));
+    } else {
+      return res.status(401).json(errorResponse(
+        findChat.password && password ? "Password is not match" : "Password is Required", {}
+      ));
     }
-  } else {
-    return res.status(404).json(errorResponse("Your phone id is not registered on our system", {}));
+  } catch (error: any) {
+    return res.status(500).json(errorResponse(error.message || "Internal Server Error", {}));
   }
 };
 //#endregion - sendMessage
