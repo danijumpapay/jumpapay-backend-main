@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/company/companyemployees";
 
 import { companyEmployeesSchema } from "../../../controllers/company/companyemployees/companyemployees.validation";

@@ -1,148 +1,112 @@
-import { Request, Response } from "express";
-import { transaction } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { Request, Response, NextFunction } from "express";
+import orderAddressesService from "@services/transaction/orderaddresses.service";
+import { successResponse, successListResponse } from "@utils/response";
+import { Model } from "objection";
 
-//#region - listData
-export const listData = async (req: Request, res: Response) => {
-  const limit: number = Number(req.query.limit) || 10;
-  const page: number = Number(req.query.page) || 1;
-  const type: string | null = req.query?.type ? String(req.query.type)?.toUpperCase() : null;
+interface RequestWithUser extends Request {
+  user?: any;
+}
 
+export const findAllOrderAddresses = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const rawQuery = transaction.OrderAddresses.query()
-      .select(
-        "transaction.order_addresses.id",
-        "transaction.order_addresses.order_id as orderId",
-        "transaction.order_addresses.address_id as addressId",
-        "transaction.order_addresses.price",
-        "transaction.order_addresses.type"
-      )
-      .page(page - 1, limit)
-      .modify((queryBuilder) => {
-        if (type !== null && type !== "") {
-          queryBuilder.whereRaw("UPPER(type) = ?", [type]);
-        }
-      });
-
-    const { total, results } = await rawQuery;
-
-    res.status(200).json(
-      successResponse("SUCCESS", {
-        results: {
-          pagination: paginationResponse(page, limit, total),
-          data: results,
-        },
-      })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      order_id: query.order_id,
+      user_id: query.user_id,
+      address_id: query.address_id,
+      delivery_type: query.delivery_type,
+      status: query.status,
+      scheduled_date: query.scheduled_date,
+      sort: query.sort,
+      withOrder: query.withOrder,
+      withUser: query.withUser,
+      withAddress: query.withAddress,
+    };
+    const data = await orderAddressesService.findAll(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - listData
 
-//#region - detailData
-export const detailData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-
+export const findOrderAddressById = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const data = await transaction.OrderAddresses.query()
-      .select(
-        "transaction.order_addresses.id",
-        "transaction.order_addresses.order_id as orderId",
-        "transaction.order_addresses.address_id as addressId",
-        "transaction.order_addresses.price",
-        "transaction.order_addresses.type"
-      )
-      .findById(id);
-
-    if (data) {
-      res.status(200).json(successResponse("SUCCESS", { results: data }));
-    } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = req.params.id;
+    const query = req.query as any;
+    const relationOptions = {
+      withOrder: query.withOrder,
+      withUser: query.withUser,
+      withAddress: query.withAddress,
+    };
+    const data = await orderAddressesService.findOne(id, relationOptions);
+    successResponse(res, 200, data);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - detailData
 
-//#region - createData
-export const createData = async (req: Request, res: Response) => {
-  const { orderId, addressId, price, type } = req.body;
-
+export const createOrderAddress = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const trx = await Model.startTransaction();
   try {
-    // const data = await transaction.OrderAddresses.query().insert({
-    //   order_id: orderId,
-    //   address_id: addressId,
-    //   price,
-    //   type,
-    // });
+    const data = req.body;
+    const newAddress = await orderAddressesService.create(data, trx);
+    await trx.commit();
 
-    res.status(201).json(
-      successResponse("Created Successfully", {
-        errors: null,
-        results: null,
-      })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { errors: null, results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { errors: null, results: null }));
-    }
-  }
-};
-//#endregion - createData
-
-//#region - updateData
-export const updateData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const { orderId, addressId, price } = req.body;
-
-  try {
-    const updated = await transaction.OrderAddresses.query().findById(id).patch({
-      order_id: orderId,
-      address_id: addressId,
-      price,
+    const createdAddress = await orderAddressesService.findOne(newAddress.id, {
+      withOrder: true,
     });
-
-    res.status(200).json(
-      successResponse("Updated Successfully", { results: updated })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    successResponse(res, 201, createdAddress, "Order Address created successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - updateData
 
-//#region - deleteData
-export const deleteData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-
+export const updateOrderAddress = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const trx = await Model.startTransaction();
   try {
-    await transaction.OrderAddresses.query().deleteById(id);
-
-    res.status(200).json(
-      successResponse("Deleted Successfully", { results: null })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = req.params.id;
+    const data = req.body;
+    const updatedAddress = await orderAddressesService.update(id, data, trx);
+    await trx.commit();
+    successResponse(res, 200, updatedAddress, "Order Address updated successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - deleteData
+
+export const deleteOrderAddress = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  const trx = await Model.startTransaction();
+  try {
+    const id = req.params.id;
+    const result = await orderAddressesService.remove(id, trx);
+    await trx.commit();
+    successResponse(res, 200, null, result.message);
+  } catch (error) {
+    await trx.rollback();
+    next(error);
+  }
+};

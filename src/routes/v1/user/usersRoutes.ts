@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { 
+import {
   listData,
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/users/index";
 import { usersSchema } from "../../../controllers/user/users/users.validation";
 import authMiddleware from "../../../middlewares/authMiddleware";

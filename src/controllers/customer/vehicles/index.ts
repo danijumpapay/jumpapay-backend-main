@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { customer } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 
 //#region - listData
@@ -42,18 +42,18 @@ export const listData = async (req: Request, res: Response) => {
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -84,15 +84,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(vehicleId);
 
     if (vehicle) {
-      res.status(200).json(successResponse("SUCCESS", { results: vehicle }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: vehicle }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -111,7 +111,7 @@ export const createData = async (req: Request, res: Response) => {
     yearOfManufacture,
     color,
     engineNumber,
-    chassisNumber
+    chassisNumber,
   } = req.body;
 
   try {
@@ -135,47 +135,45 @@ export const createData = async (req: Request, res: Response) => {
     const formData: FormData = {
       id,
       user_id: userId,
-      vehicle_type_id: Number(vehicleTypeId), // ✅ HARUS NUMBER
-      plate_id: Number(plateId),              // ✅ HARUS NUMBER
+      vehicle_type_id: Number(vehicleTypeId),
+      plate_id: Number(plateId),
       plate_number: plateNumber,
       plate_serial: plateSerial || null,
       brand,
       model,
-      year_of_manufacture: yearOfManufacture ? Number(yearOfManufacture) : null, // ✅ HARUS NUMBER
+      year_of_manufacture: yearOfManufacture ? Number(yearOfManufacture) : null,
       color,
       engine_number: engineNumber || null,
-      chassis_number: chassisNumber || null
+      chassis_number: chassisNumber || null,
     };
 
     const vehicle = await customer.Vehicles.query().insert(formData);
 
     res.status(201).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         errors: null,
-        results: vehicle
+        results: vehicle,
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(500).json(
-        errorResponse(error?.message, {
+        errorResponseOld(error?.message, {
           errors: null,
-          results: null
+          results: null,
         })
       );
     } else {
       res.status(500).json(
-        errorResponse("Internal server error", {
+        errorResponseOld("Internal server error", {
           errors: null,
-          results: null
+          results: null,
         })
       );
     }
   }
 };
 //#endregion - createData
-
-
 
 //#region - updateData
 export const updateData = async (req: Request, res: Response) => {
@@ -191,37 +189,35 @@ export const updateData = async (req: Request, res: Response) => {
     yearOfManufacture,
     color,
     engineNumber,
-    chassisNumber
+    chassisNumber,
   } = req.body;
 
   try {
-    const updated = await customer.Vehicles.querySoftDelete()
-      .findById(vehicleId)
-      .patch({
-        user_id: userId,
-        vehicle_type_id: vehicleTypeId,
-        plate_id: plateId,
-        plate_number: plateNumber,
-        plate_serial: plateSerial,
-        brand,
-        model,
-        year_of_manufacture: yearOfManufacture,
-        color,
-        engine_number: engineNumber,
-        chassis_number: chassisNumber
-      });
+    const updated = await customer.Vehicles.querySoftDelete().findById(vehicleId).patch({
+      user_id: userId,
+      vehicle_type_id: vehicleTypeId,
+      plate_id: plateId,
+      plate_number: plateNumber,
+      plate_serial: plateSerial,
+      brand,
+      model,
+      year_of_manufacture: yearOfManufacture,
+      color,
+      engine_number: engineNumber,
+      chassis_number: chassisNumber,
+    });
 
     if (updated) {
       const newData = await customer.Vehicles.querySoftDelete().findById(vehicleId);
-      res.status(200).json(successResponse("UPDATED", { results: newData }));
+      res.status(200).json(successResponseOld("UPDATED", { results: newData }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -235,17 +231,17 @@ export const deleteData = async (req: Request, res: Response) => {
     const vehicle = await customer.Vehicles.querySoftDelete().findById(vehicleId);
 
     if (!vehicle) {
-      return res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      return res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
 
     await customer.Vehicles.softDelete(vehicleId);
 
-    res.status(200).json(successResponse("DELETED", { results: null }));
+    res.status(200).json(successResponseOld("DELETED", { results: null }));
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

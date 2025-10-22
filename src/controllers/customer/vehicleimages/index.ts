@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { customer } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 
 //#region - listData
 export const listData = async (req: Request, res: Response) => {
@@ -21,8 +21,10 @@ export const listData = async (req: Request, res: Response) => {
       .modify((queryBuilder) => {
         if (searchKeywords !== null && searchKeywords !== "") {
           queryBuilder.where((qb) => {
-            qb.whereRaw("LOWER(original_image) LIKE ?", [`%${searchKeywords}%`])
-              .orWhereRaw("LOWER(image) LIKE ?", [`%${searchKeywords}%`]);
+            qb.whereRaw("LOWER(original_image) LIKE ?", [`%${searchKeywords}%`]).orWhereRaw(
+              "LOWER(image) LIKE ?",
+              [`%${searchKeywords}%`]
+            );
           });
         }
       });
@@ -30,18 +32,18 @@ export const listData = async (req: Request, res: Response) => {
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -63,15 +65,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(imageId);
 
     if (image) {
-      res.status(200).json(successResponse("SUCCESS", { results: image }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: image }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -91,30 +93,30 @@ export const createData = async (req: Request, res: Response) => {
     const formData: FormData = {
       vehicle_id: vehicleId,
       original_image: originalImage,
-      image
+      image,
     };
 
     const newImage = await customer.VehicleImages.query().insert(formData);
 
     res.status(201).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         errors: null,
-        results: newImage
+        results: newImage,
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(500).json(
-        errorResponse(error?.message, {
+        errorResponseOld(error?.message, {
           errors: null,
-          results: null
+          results: null,
         })
       );
     } else {
       res.status(500).json(
-        errorResponse("Internal server error", {
+        errorResponseOld("Internal server error", {
           errors: null,
-          results: null
+          results: null,
         })
       );
     }
@@ -128,29 +130,23 @@ export const updateData = async (req: Request, res: Response) => {
   const { vehicleId, originalImage, image } = req.body;
 
   try {
-    const updated = await customer.VehicleImages.query()
-      .findById(imageId)
-      .patch({
-        vehicle_id: vehicleId,
-        original_image: originalImage,
-        image
-      });
+    const updated = await customer.VehicleImages.query().findById(imageId).patch({
+      vehicle_id: vehicleId,
+      original_image: originalImage,
+      image,
+    });
 
     if (updated) {
       const newData = await customer.VehicleImages.query().findById(imageId);
-      res.status(200).json(
-        successResponse("UPDATED", { results: newData })
-      );
+      res.status(200).json(successResponseOld("UPDATED", { results: newData }));
     } else {
-      res.status(404).json(
-        errorResponse("DATA NOT FOUND", { results: null })
-      );
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -164,25 +160,17 @@ export const deleteData = async (req: Request, res: Response) => {
     const image = await customer.VehicleImages.query().findById(imageId);
 
     if (!image) {
-      return res.status(404).json(
-        errorResponse("DATA NOT FOUND", { results: null })
-      );
+      return res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
 
     await customer.VehicleImages.query().deleteById(imageId);
 
-    res.status(200).json(
-      successResponse("DELETED", { results: null })
-    );
+    res.status(200).json(successResponseOld("DELETED", { results: null }));
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(
-        errorResponse(error?.message, { results: null })
-      );
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(
-        errorResponse("Internal server error", { results: null })
-      );
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

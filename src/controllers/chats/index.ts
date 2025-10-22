@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 import { whatsapp } from "@jumpapay/jumpapay-models";
 import { raw } from "objection";
@@ -25,8 +25,10 @@ export const listUntakenChats = async (req: Request, res: Response) => {
   const phoneId = req.params.phoneId;
   const limit: number = Number(req.query.limit) || 10;
   const page: number = Number(req.query.page) || 1;
-  const isRead: boolean | null = req.query.isRead ? !!Number(req.query.isRead) : null;
-  const isSessionActive: boolean | null = req.query.isSessionActive ? !!Number(req.query.isSessionActive) : null;
+  const isRead: boolean | null = req.query.isRead ? Boolean(Number(req.query.isRead)) : null;
+  const isSessionActive: boolean | null = req.query.isSessionActive
+    ? Boolean(Number(req.query.isSessionActive))
+    : null;
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
@@ -49,32 +51,30 @@ export const listUntakenChats = async (req: Request, res: Response) => {
     if (searchKeywords) {
       const keyword = `%${searchKeywords}%`;
       rawQuery.where(function () {
-        this.whereRaw("LOWER(chats.phone) LIKE ?", [keyword])
-          .orWhereRaw("LOWER(chats.name) LIKE ?", [keyword])
+        this.whereRaw("LOWER(chats.phone) LIKE ?", [keyword]).orWhereRaw(
+          "LOWER(chats.name) LIKE ?",
+          [keyword]
+        );
       });
     }
 
     const { total, results } = await rawQuery;
 
-    let totalData = total;
+    const totalData = total;
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, totalData),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     console.log("ERROR ===>", error);
     if (error instanceof Error) {
-      res.status(500).json(
-        errorResponse(error?.message, { results: null })
-      );
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(
-        errorResponse("Internal server error", { results: null })
-      );
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -85,8 +85,10 @@ export const listTakenChats = async (req: Request, res: Response) => {
   const phoneId = req.params.phoneId;
   const limit: number = Number(req.query.limit) || 10;
   const page: number = Number(req.query.page) || 1;
-  const isRead: boolean | null = req.query.isRead ? !!Number(req.query.isRead) : null;
-  const isSessionActive: boolean | null = req.query.isSessionActive ? !!Number(req.query.isSessionActive) : null;
+  const isRead: boolean | null = req.query.isRead ? Boolean(Number(req.query.isRead)) : null;
+  const isSessionActive: boolean | null = req.query.isSessionActive
+    ? Boolean(Number(req.query.isSessionActive))
+    : null;
   const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
 
   try {
@@ -109,31 +111,29 @@ export const listTakenChats = async (req: Request, res: Response) => {
     if (searchKeywords) {
       const keyword = `%${searchKeywords}%`;
       rawQuery.where(function () {
-        this.whereRaw("LOWER(chats.phone) LIKE ?", [keyword])
-          .orWhereRaw("LOWER(chats.name) LIKE ?", [keyword])
+        this.whereRaw("LOWER(chats.phone) LIKE ?", [keyword]).orWhereRaw(
+          "LOWER(chats.name) LIKE ?",
+          [keyword]
+        );
       });
     }
 
     const { total, results } = await rawQuery;
 
-    let totalData = total;
+    const totalData = total;
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, totalData),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(
-        errorResponse(error?.message, { results: null })
-      );
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(
-        errorResponse("Internal server error", { results: null })
-      );
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

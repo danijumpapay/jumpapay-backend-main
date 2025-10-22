@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/company/companywhatsapp";
 
 import { companyWhatsappSchema } from "../../../controllers/company/companywhatsapp/companywhatsapp.validation";

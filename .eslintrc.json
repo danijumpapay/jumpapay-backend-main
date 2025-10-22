@@ -1,0 +1,63 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "prettier/prettier": "warn",
+    "quotes": ["warn", "double", { "avoidEscape": true }],
+    "semi": ["warn", "always"],
+    "@typescript-eslint/no-unused-vars": [
+      "off",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-namespace": "off",
+
+    "no-console": "off",
+    "eqeqeq": ["error", "always"],
+    "no-implicit-coercion": "error",
+    "no-unused-expressions": "off",
+    "no-useless-catch": "off",
+    "@typescript-eslint/no-unused-expressions": ["error", {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }
+    ],
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "no-throw-literal": "off",
+    // "@typescript-eslint/no-throw-literal": "error",
+    "prefer-const": "warn"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    ".env",
+    ".env.*",
+    "*.log"
+  ]
+}

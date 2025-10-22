@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/usersosialmedia/index";
 
 import { userSosialMediaSchema } from "../../../controllers/user/usersosialmedia/usersosialmedia.validation";

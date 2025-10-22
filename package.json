@@ -8,9 +8,9 @@
     "prod:start": "node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q --exec ts-node -r tsconfig-paths/register dist/index.js\"",
     "build": "npx tsc && tsc-alias",
-    "migrate": "npx knex migrate:latest --env development --knexfile knexfile.ts",
-    "migrate:rollback": "npx knex migrate:rollback --env development --knexfile knexfile.ts",
-    "migrate:make": "npx knex migrate:make %npm_config_name% --env development --knexfile knexfile.ts -x ts"
+    "lint": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.ts\"",
+    "lint:fix": "cross-env ESLINT_USE_FLAT_CONFIG=false eslint \"src/**/*.ts\" --fix",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "repository": {
     "type": "git",
@@ -28,9 +28,11 @@
   },
   "homepage": "https://github.com/resitdc/express-starter-pack#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.914.0",
+    "@aws-sdk/lib-storage": "^3.914.0",
     "@elastic/elasticsearch": "^8.19.0",
     "@hapi/joi": "^17.1.1",
-    "@jumpapay/jumpapay-models": "^2.0.1",
+    "@jumpapay/jumpapay-models": "^3.2.12",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
@@ -42,10 +44,12 @@
     "kafkajs": "^2.2.4",
     "knex": "3.1.0",
     "multer": "^2.0.2",
+    "multer-s3": "^3.0.1",
     "nodemailer": "^6.9.1",
     "objection": "3.1.4",
     "pg": "^8.10.0",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -54,10 +58,18 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/knex": "^0.16.1",
     "@types/multer": "^2.0.0",
+    "@types/multer-s3": "^3.0.3",
     "@types/node": "^18.15.11",
     "@types/pg": "^8.15.5",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
     "concurrently": "^8.0.1",
+    "cross-env": "^10.1.0",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "nodemon": "^2.0.22",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",

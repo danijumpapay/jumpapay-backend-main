@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/usertoken";
 
 import { userTokenSchema } from "../../../controllers/user/usertoken/usertoken.validation";

@@ -1,132 +1,83 @@
-import { Request, Response } from "express";
-import { common } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { Request, Response, NextFunction } from "express";
+import citiesService from "@services/common/cities.service";
+import { successResponse, successListResponse } from "@utils/response";
+import { Model } from "objection";
 
-//#region - listData
-export const listData = async (req: Request, res: Response) => {
-  const limit: number = Number(req.query.limit) || 10;
-  const page: number = Number(req.query.page) || 1;
-  const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
+interface RequestWithUser extends Request {
+  user?: any;
+}
 
+export const findAllCities = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const rawQuery = common.Cities.querySoftDelete()
-      .select(
-        "cities.id",
-        "cities.name as cityName",
-        "cities.icon as cityIcon"
-      )
-      .page(page - 1, limit)
-      .modify((queryBuilder) => {
-        if (searchKeywords !== null && searchKeywords !== "") {
-          queryBuilder.whereRaw("LOWER(cities.name) LIKE ?", [`%${searchKeywords}%`]);
-        }
-      });
-
-    const { total, results } = await rawQuery;
-
-    res.status(200).json(
-      successResponse("SUCCESS", {
-        results: {
-          pagination: paginationResponse(page, limit, total),
-          data: results
-        }
-      })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const query = req.query as any;
+    const options = {
+      limit: query.limit,
+      offset: query.offset,
+      search: query.search,
+      province_id: query.province_id,
+      sort: query.sort,
+      withProvince: query.withProvince,
+      withCityPlates: query.withCityPlates,
+    };
+    const data = await citiesService.findAll(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - listData
 
-//#region - detailData
-export const detailData = async (req: Request, res: Response) => {
-  const cityId = Number(req.params.id);
-
+export const findCityById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
-    const city = await common.Cities.querySoftDelete()
-      .select(
-        "cities.id",
-        "cities.name as cityName",
-        "cities.icon as cityIcon"
-      )
-      .findById(cityId);
+    const id = parseInt(req.params.id, 10);
+    const query = req.query as any;
+    const data = await citiesService.findOne(id, {
+      withProvince: query.withProvince,
+      withCityPlates: query.withCityPlates,
+    });
 
-    if (city) {
-      res.status(200).json(successResponse("SUCCESS", { results: city }));
-    } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    successResponse(res, 200, data);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - detailData
 
-//#region - createData
-export const createData = async (req: Request, res: Response) => {
-  const { id, name, icon } = req.body;
-
+export const createCity = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    const formData = { id, name, icon };
-
-    const newCity = await common.Cities.query().insert(formData);
-
-    res.status(201).json(successResponse("SUCCESS", { results: newCity }));
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const data = req.body;
+    const newCity = await citiesService.create(data, trx);
+    await trx.commit();
+    successResponse(res, 201, newCity, "City created successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - createData
 
-//#region - updateData
-export const updateData = async (req: Request, res: Response) => {
-  const cityId = Number(req.params.id);
-  const { name, icon } = req.body;
-
+export const updateCity = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    const updated = await common.Cities.query().findById(cityId).patch({ name, icon });
-
-    if (updated) {
-      res.status(200).json(successResponse("UPDATED", { results: updated }));
-    } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = parseInt(req.params.id, 10);
+    const data = req.body;
+    const updatedCity = await citiesService.update(id, data, trx);
+    await trx.commit();
+    successResponse(res, 200, updatedCity, "City updated successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - updateData
 
-//#region - deleteData
-export const deleteData = async (req: Request, res: Response) => {
-  const cityId = Number(req.params.id);
-
+export const deleteCity = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    await common.Cities.softDelete(cityId);
+    const id = parseInt(req.params.id, 10);
+    const result = await citiesService.remove(id, trx);
+    await trx.commit();
 
-    res.status(200).json(successResponse("DELETED", { results: null }));
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    successResponse(res, 200, null, result.message);
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - deleteData

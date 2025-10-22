@@ -1,10 +1,10 @@
 import Joi from "joi";
-import validate from "../../../middlewares/validationMiddleware";
+import validate from "@middlewares/oldValidationMiddleware";
 
 export const usersActivitiesSchema = validate(
   Joi.object({
     userId: Joi.string().required(),
     activityName: Joi.string().max(150).required(),
-    activityDetail: Joi.string().allow(null, "")
+    activityDetail: Joi.string().allow(null, ""),
   })
 );

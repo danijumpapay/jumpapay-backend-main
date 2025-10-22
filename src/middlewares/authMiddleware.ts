@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { errorResponse } from "../utils/response";
+import { errorResponseOld } from "../utils/response";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -22,15 +22,11 @@ declare global {
   }
 }
 
-const requireAuth = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-      return res.status(400).json(errorResponse("LOGIN NEEDED!"));
+      return res.status(400).json(errorResponseOld("LOGIN NEEDED!"));
     }
 
     const payload = jwt.verify(token, process.env.JWTSECRET!) as UserPayload;
@@ -38,7 +34,7 @@ const requireAuth = (
 
     next();
   } catch (err) {
-    return res.status(401).json(errorResponse("Authentication failed"));
+    return res.status(401).json(errorResponseOld("Authentication failed"));
   }
 };
 

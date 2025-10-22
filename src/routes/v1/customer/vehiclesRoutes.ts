@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/customer/vehicles";
 
 import { vehiclesSchema } from "../../../controllers/customer/vehicles/vehicles.validation";

@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/customer/addresses/index";
 import { addressesSchema } from "../../../controllers/customer/addresses/addresses.validation";
 import authMiddleware from "../../../middlewares/authMiddleware";

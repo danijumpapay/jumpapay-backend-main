@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { customer } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 
 //#region - listData
@@ -33,25 +33,25 @@ export const listData = async (req: Request, res: Response) => {
             qb.whereRaw("LOWER(name) LIKE ?", [`%${searchKeywords}%`])
               .orWhereRaw("LOWER(province) LIKE ?", [`%${searchKeywords}%`])
               .orWhereRaw("LOWER(raw_address) LIKE ?", [`%${searchKeywords}%`]);
-          })
+          });
         }
       });
 
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -81,15 +81,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(addressId);
 
     if (address) {
-      res.status(200).json(successResponse("SUCCESS", { results: address }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: address }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -108,7 +108,7 @@ export const createData = async (req: Request, res: Response) => {
     latitude,
     postcode,
     isPickupAddress,
-    isReturnAddress
+    isReturnAddress,
   } = req.body;
 
   try {
@@ -117,7 +117,7 @@ export const createData = async (req: Request, res: Response) => {
     const formData = {
       id,
       user_id: userId,
-      city_id: Number(cityId), // harus dikonversi ke number
+      city_id: Number(cityId),
       name,
       address_type: addressType,
       province,
@@ -126,17 +126,17 @@ export const createData = async (req: Request, res: Response) => {
       latitude,
       postcode,
       is_pickup_address: isPickupAddress,
-      is_return_address: isReturnAddress
+      is_return_address: isReturnAddress,
     };
 
     const address = await customer.Addresses.query().insert(formData);
 
-    res.status(201).json(successResponse("SUCCESS", { results: address }));
+    res.status(201).json(successResponseOld("SUCCESS", { results: address }));
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -157,7 +157,7 @@ export const updateData = async (req: Request, res: Response) => {
     latitude,
     postcode,
     isPickupAddress,
-    isReturnAddress
+    isReturnAddress,
   } = req.body;
 
   try {
@@ -165,7 +165,7 @@ export const updateData = async (req: Request, res: Response) => {
       .findById(addressId)
       .patch({
         user_id: userId,
-        city_id: Number(cityId), // pastikan diubah jadi number
+        city_id: Number(cityId),
         name,
         address_type: addressType,
         province,
@@ -174,20 +174,20 @@ export const updateData = async (req: Request, res: Response) => {
         latitude,
         postcode,
         is_pickup_address: isPickupAddress,
-        is_return_address: isReturnAddress
+        is_return_address: isReturnAddress,
       });
 
     if (updated) {
       const newData = await customer.Addresses.query().findById(addressId);
-      res.status(200).json(successResponse("UPDATED", { results: newData }));
+      res.status(200).json(successResponseOld("UPDATED", { results: newData }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -199,12 +199,12 @@ export const deleteData = async (req: Request, res: Response) => {
 
   try {
     await customer.Addresses.softDelete(addressId);
-    res.status(200).json(successResponse("DELETED", { results: null }));
+    res.status(200).json(successResponseOld("DELETED", { results: null }));
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

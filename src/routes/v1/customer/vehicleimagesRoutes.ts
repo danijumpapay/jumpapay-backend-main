@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { 
+import {
   listData,
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/customer/vehicleimages";
 
 import { vehicleImagesSchema } from "../../../controllers/customer/vehicleimages/vehicleimages.validation";

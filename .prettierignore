@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+
+# Env files
+.env
+.env.*
+
+# Logs
+*.log
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs / Cache
+.turbo/
+.vercel/

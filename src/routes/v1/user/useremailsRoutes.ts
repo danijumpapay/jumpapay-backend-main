@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/useremails";
 
 import { userEmailsSchema } from "../../../controllers/user/useremails/useremails.validation";

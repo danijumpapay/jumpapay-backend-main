@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { whatsapp } from "@jumpapay/jumpapay-models";
 
 //#region - listData
@@ -17,7 +17,7 @@ export const listData = async (req: Request, res: Response) => {
         "whatsapp.phone_id as phoneId",
         "whatsapp.phone",
         "whatsapp.name",
-        "whatsapp.avatar",
+        "whatsapp.avatar"
       )
       .orderBy("whatsapp.name", "ASC")
       .where("whatsapp.merchant_id", merchantId)
@@ -26,24 +26,20 @@ export const listData = async (req: Request, res: Response) => {
 
     const { total, results } = await rawQuery;
 
-    let totalData = total;
+    const totalData = total;
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, totalData),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(
-        errorResponse(error?.message, { results: null })
-      );
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(
-        errorResponse("Internal server error", { results: null })
-      );
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

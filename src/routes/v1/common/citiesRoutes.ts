@@ -1,21 +1,25 @@
 import { Router } from "express";
 import {
-  listData,
-  detailData,
-  createData,
-  updateData,
-  deleteData
-} from "../../../controllers/common/cities";
-
-import { citiesSchema } from "../../../controllers/common/cities/cities.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+  findAllCities,
+  findCityById,
+  createCity,
+  updateCity,
+  deleteCity,
+} from "@controllers/common/cities";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
+import {
+  findAllCitiesSchema,
+  cityIdSchema,
+  createCitySchema,
+  updateCitySchema,
+} from "@controllers/common/cities/cities.validation";
 
 const router = Router();
 
-router.get("/", authMiddleware, listData);
-router.get("/:id", authMiddleware, detailData);
-router.post("/", authMiddleware, citiesSchema, createData);
-router.patch("/:id", authMiddleware, citiesSchema, updateData);
-router.delete("/:id", authMiddleware, deleteData);
+router.get("/", validateQuery(findAllCitiesSchema), findAllCities);
+router.get("/:id", validateParams(cityIdSchema), findCityById);
+router.post("/", validateBody(createCitySchema), createCity);
+router.patch("/:id", validateParams(cityIdSchema), validateBody(updateCitySchema), updateCity);
+router.delete("/:id", validateParams(cityIdSchema), deleteCity);
 
 export default router;

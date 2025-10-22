@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { user } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 
 //#region - listData
@@ -28,8 +28,10 @@ export const listData = async (req: Request, res: Response) => {
       .modify((queryBuilder) => {
         if (searchKeywords !== null && searchKeywords !== "") {
           queryBuilder.where((qb) => {
-            qb.whereRaw("LOWER(name) LIKE ?", [`%${searchKeywords}%`])
-              .orWhereRaw("LOWER(device) LIKE ?", [`%${searchKeywords}%`]);
+            qb.whereRaw("LOWER(name) LIKE ?", [`%${searchKeywords}%`]).orWhereRaw(
+              "LOWER(device) LIKE ?",
+              [`%${searchKeywords}%`]
+            );
           });
         }
       });
@@ -37,18 +39,18 @@ export const listData = async (req: Request, res: Response) => {
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -76,15 +78,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(tokenId);
 
     if (token) {
-      res.status(200).json(successResponse("SUCCESS", { results: token }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: token }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -92,17 +94,7 @@ export const detailData = async (req: Request, res: Response) => {
 
 //#region - createData
 export const createData = async (req: Request, res: Response) => {
-  const {
-    userId,
-    name,
-    device,
-    browser,
-    ip,
-    location,
-    token,
-    expiredAt,
-    isExpired
-  } = req.body;
+  const { userId, name, device, browser, ip, location, token, expiredAt, isExpired } = req.body;
 
   try {
     const id: string = generateId(userId);
@@ -130,27 +122,25 @@ export const createData = async (req: Request, res: Response) => {
       location,
       token,
       expired_at: expiredAt,
-      is_expired: isExpired
+      is_expired: isExpired,
     };
 
     const userToken = await user.UserTokens.query().insert(formData);
 
-    res.status(201).json(
-      successResponse("SUCCESS", { results: userToken })
-    );
+    res.status(201).json(successResponseOld("SUCCESS", { results: userToken }));
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.status(500).json(
-        errorResponse(error?.message, {
+        errorResponseOld(error?.message, {
           errors: null,
-          results: null
+          results: null,
         })
       );
     } else {
       res.status(500).json(
-        errorResponse("Internal server error", {
+        errorResponseOld("Internal server error", {
           errors: null,
-          results: null
+          results: null,
         })
       );
     }
@@ -161,32 +151,20 @@ export const createData = async (req: Request, res: Response) => {
 //#region - updateData
 export const updateData = async (req: Request, res: Response) => {
   const tokenId = req.params.id;
-  const {
-    userId,
-    name,
-    device,
-    browser,
-    ip,
-    location,
-    token,
-    expiredAt,
-    isExpired
-  } = req.body;
+  const { userId, name, device, browser, ip, location, token, expiredAt, isExpired } = req.body;
 
   try {
-    const updated = await user.UserTokens.query()
-      .findById(tokenId)
-      .patch({
-        user_id: userId,
-        name,
-        device,
-        browser,
-        ip,
-        location,
-        token,
-        expired_at: expiredAt,
-        is_expired: isExpired
-      });
+    const updated = await user.UserTokens.query().findById(tokenId).patch({
+      user_id: userId,
+      name,
+      device,
+      browser,
+      ip,
+      location,
+      token,
+      expired_at: expiredAt,
+      is_expired: isExpired,
+    });
 
     if (updated) {
       const newData = await user.UserTokens.query()
@@ -205,19 +183,15 @@ export const updateData = async (req: Request, res: Response) => {
         )
         .findById(tokenId);
 
-      res.status(200).json(
-        successResponse("UPDATED", { results: newData })
-      );
+      res.status(200).json(successResponseOld("UPDATED", { results: newData }));
     } else {
-      res.status(404).json(
-        errorResponse("DATA NOT FOUND", { results: null })
-      );
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -231,19 +205,15 @@ export const deleteData = async (req: Request, res: Response) => {
     const deleted = await user.UserTokens.query().deleteById(tokenId);
 
     if (deleted) {
-      res.status(200).json(
-        successResponse("DELETED", { results: null })
-      );
+      res.status(200).json(successResponseOld("DELETED", { results: null }));
     } else {
-      res.status(404).json(
-        errorResponse("DATA NOT FOUND", { results: null })
-      );
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error?.message, { results: null }));
+      res.status(500).json(errorResponseOld(error?.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

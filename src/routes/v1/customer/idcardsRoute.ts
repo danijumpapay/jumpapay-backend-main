@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { 
+import {
   listData,
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/customer/idcards/index";
 
 import { idCardSchema } from "../../../controllers/customer/idcards/idcards.validation";

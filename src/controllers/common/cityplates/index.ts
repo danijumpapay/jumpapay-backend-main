@@ -1,148 +1,84 @@
-import { Request, Response } from "express";
-import { common } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { Request, Response, NextFunction } from "express";
+import cityPlatesService from "@services/common/cityplates.service";
+import { successResponse, successListResponse } from "@utils/response";
+import { Model } from "objection";
 
-//#region - listData
-export const listData = async (req: Request, res: Response) => {
-  const limit: number = Number(req.query.limit) || 10;
-  const page: number = Number(req.query.page) || 1;
-  const searchKeywords: string | null = req.query?.s ? String(req.query.s)?.toLowerCase() : null;
+interface RequestWithUser extends Request {
+  user?: any;
+}
 
+export const findAllCityPlates = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const rawQuery = common.CityPlates.query()
-      .select(
-        "common.city_plates.id",
-        "common.city_plates.city_id",
-        "common.city_plates.plate_id",
-        "common.city_plates.is_active as isActive"
-      )
-      .page(page - 1, limit)
-      .modify((queryBuilder) => {
-        if (searchKeywords !== null && searchKeywords !== "") {
-          queryBuilder.where((qb) => {
-            qb.whereRaw("CAST(city_id AS TEXT) LIKE ?", [`%${searchKeywords}%`])
-              .orWhereRaw("CAST(plate_id AS TEXT) LIKE ?", [`%${searchKeywords}%`]);
-          });
-        }
-      });
-
-    const { total, results } = await rawQuery;
-
-    res.status(200).json(
-      successResponse("SUCCESS", {
-        results: {
-          pagination: paginationResponse(page, limit, total),
-          data: results,
-        },
-      })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const query = req.query as any;
+    const options = {
+      limit: query.limit,
+      offset: query.offset,
+      city_id: query.city_id,
+      plate_id: query.plate_id,
+      is_active: query.is_active,
+      sort: query.sort,
+    };
+    const data = await cityPlatesService.findAll(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - listData
 
-//#region - detailData
-export const detailData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-
+export const findCityPlateById = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const data = await common.CityPlates.query()
-      .select(
-        "common.city_plates.id",
-        "common.city_plates.city_id",
-        "common.city_plates.plate_id",
-        "common.city_plates.is_active as isActive"
-      )
-      .findById(id);
-
-    if (data) {
-      res.status(200).json(successResponse("SUCCESS", { results: data }));
-    } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
-    }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = req.params.id;
+    const data = await cityPlatesService.findOne(id);
+    successResponse(res, 200, data);
+  } catch (error) {
+    next(error);
   }
 };
-//#endregion - detailData
 
-//#region - createData
-export const createData = async (req: Request, res: Response) => {
-  const { city_id, plate_id, is_active } = req.body;
-
+export const createCityPlate = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    const data = await common.CityPlates.query().insert({
-      city_id,
-      plate_id,
-      is_active: is_active ?? true,
-    });
-
-    res.status(201).json(
-      successResponse("Created Successfully", {
-        errors: null,
-        results: data,
-      })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { errors: null, results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { errors: null, results: null }));
-    }
+    const data = req.body;
+    const newRelation = await cityPlatesService.create(data, trx);
+    await trx.commit();
+    successResponse(res, 201, newRelation, "City-Plate relation created successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - createData
 
-//#region - updateData
-export const updateData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const { city_id, plate_id, is_active } = req.body;
-
+export const updateCityPlate = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    const updated = await common.CityPlates.query().findById(id).patch({
-      city_id,
-      plate_id,
-      is_active,
-    });
-
-    res.status(200).json(
-      successResponse("Updated Successfully", { results: updated })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = req.params.id;
+    const data = req.body;
+    const updatedRelation = await cityPlatesService.update(id, data, trx);
+    await trx.commit();
+    successResponse(res, 200, updatedRelation, "City-Plate relation status updated successfully");
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - updateData
 
-//#region - deleteData
-export const deleteData = async (req: Request, res: Response) => {
-  const id = req.params.id;
-
+export const deleteCityPlate = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
   try {
-    await common.CityPlates.query().deleteById(id);
-
-    res.status(200).json(
-      successResponse("Deleted Successfully", { results: null })
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
-    } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
-    }
+    const id = req.params.id;
+    const result = await cityPlatesService.remove(id, trx);
+    await trx.commit();
+    successResponse(res, 200, null, result.message);
+  } catch (error) {
+    await trx.rollback();
+    next(error);
   }
 };
-//#endregion - deleteData

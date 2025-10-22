@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { 
+import {
   listData,
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/userotp/index";
 import { userOtpSchema } from "../../../controllers/user/userotp/userotp.validation";
 import authMiddleware from "../../../middlewares/authMiddleware";

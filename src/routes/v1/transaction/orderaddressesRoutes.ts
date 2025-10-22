@@ -1,20 +1,30 @@
 import { Router } from "express";
 import {
-  listData,
-  detailData,
-  createData,
-  updateData,
-  deleteData,
-} from "../../../controllers/transaction/orderaddresses";
-import { orderAddressesSchema } from "../../../controllers/transaction/orderaddresses/orderaddresses.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+  findAllOrderAddresses,
+  findOrderAddressById,
+  createOrderAddress,
+  updateOrderAddress,
+  deleteOrderAddress,
+} from "@controllers/transaction/orderaddresses";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
+import {
+  findAllOrderAddressesSchema,
+  orderAddressIdSchema,
+  createOrderAddressSchema,
+  updateOrderAddressSchema,
+} from "@controllers/transaction/orderaddresses/orderaddresses.validation";
 
 const router = Router();
 
-router.get("/", authMiddleware, listData);
-router.get("/:id", authMiddleware, detailData);
-router.post("/", authMiddleware, orderAddressesSchema, createData);
-router.patch("/:id", authMiddleware, orderAddressesSchema, updateData);
-router.delete("/:id", authMiddleware, deleteData);
+router.get("/", validateQuery(findAllOrderAddressesSchema), findAllOrderAddresses);
+router.get("/:id", validateParams(orderAddressIdSchema), findOrderAddressById);
+router.post("/", validateBody(createOrderAddressSchema), createOrderAddress);
+router.patch(
+  "/:id",
+  validateParams(orderAddressIdSchema),
+  validateBody(updateOrderAddressSchema),
+  updateOrderAddress
+);
+router.delete("/:id", validateParams(orderAddressIdSchema), deleteOrderAddress);
 
 export default router;

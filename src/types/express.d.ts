@@ -1,4 +1,3 @@
-// src/types/express.d.ts
 import { Request } from "express";
 
 declare global {
@@ -8,12 +7,3 @@ declare global {
     }
   }
 }
-
-// Multer 'single'
-// declare global {
-//   namespace Express {
-//     interface Request {
-//       file?: Express.Multer.File;
-//     }
-//   }
-// }

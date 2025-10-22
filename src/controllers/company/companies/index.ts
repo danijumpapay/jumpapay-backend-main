@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { company } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 
 //#region - listData
@@ -33,18 +33,18 @@ export const listData = async (req: Request, res: Response) => {
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -71,15 +71,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(companyId);
 
     if (results) {
-      res.status(200).json(successResponse("SUCCESS", { results: results }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: results }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -95,7 +95,7 @@ export const createData = async (req: Request, res: Response) => {
     const isExist = await company.Companies.query().findById(id);
 
     if (isExist) {
-      res.status(409).json(errorResponse("Company ID already exists", { results: null }));
+      res.status(409).json(errorResponseOld("Company ID already exists", { results: null }));
     } else {
       const formData = {
         id,
@@ -107,23 +107,25 @@ export const createData = async (req: Request, res: Response) => {
         longitude,
         latitude,
         address,
-        email
+        email,
       };
 
       const results = await company.Companies.query().insert(formData);
 
       res.status(201).json(
-        successResponse("SUCCESS", {
+        successResponseOld("SUCCESS", {
           errors: null,
-          results: results
+          results: results,
         })
       );
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { errors: null, results: null }));
+      res.status(500).json(errorResponseOld(error.message, { errors: null, results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { errors: null, results: null }));
+      res
+        .status(500)
+        .json(errorResponseOld("Internal server error", { errors: null, results: null }));
     }
   }
 };
@@ -144,7 +146,7 @@ export const updateData = async (req: Request, res: Response) => {
       longitude,
       latitude,
       address,
-      email
+      email,
     });
 
     if (updated) {
@@ -163,15 +165,15 @@ export const updateData = async (req: Request, res: Response) => {
         )
         .findById(companyId);
 
-      res.status(200).json(successResponse("UPDATED", { results: newData }));
+      res.status(200).json(successResponseOld("UPDATED", { results: newData }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -185,15 +187,15 @@ export const deleteData = async (req: Request, res: Response) => {
     const deleted = await company.Companies.query().deleteById(companyId);
 
     if (deleted) {
-      res.status(200).json(successResponse("DELETED", { results: null }));
+      res.status(200).json(successResponseOld("DELETED", { results: null }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

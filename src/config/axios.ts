@@ -12,10 +12,7 @@ const axiosInstance = (botType: string) => {
     baseURL: botType.toLowerCase() === "b2b" ? b2bHost : b2cHost,
   });
 
-  instance.interceptors.response.use(
-    (response) => response,
-    errorResponseHandler,
-  );
+  instance.interceptors.response.use((response) => response, errorResponseHandler);
 
   return instance;
 };
@@ -27,20 +24,15 @@ export const whatsappMiddlewareInstance = () => {
 
   instance.interceptors.request.use(
     (config) => {
-      // const bearerToken = `Bearer ${token}`;
-      // config.headers.Authorization = bearerToken;
       return config;
     },
     (error) => {
       console.log("WHATSAPP INSTANCE ERROR ======>", error);
       return Promise.reject(error);
-    },
+    }
   );
 
-  instance.interceptors.response.use(
-    (response) => response,
-    errorResponseHandler,
-  );
+  instance.interceptors.response.use((response) => response, errorResponseHandler);
 
   return instance;
 };

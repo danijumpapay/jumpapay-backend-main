@@ -1,21 +1,25 @@
 import { Router } from "express";
 import {
-  listData,
-  detailData,
-  createData,
-  updateData,
-  deleteData
-} from "../../../controllers/common/plates";
-
-import { platesSchema } from "../../../controllers/common/plates/plates.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+  findAllPlates,
+  findPlateById,
+  createPlate,
+  updatePlate,
+  deletePlate,
+} from "@controllers/common/plates";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
+import {
+  findAllPlatesSchema,
+  plateIdSchema,
+  createPlateSchema,
+  updatePlateSchema,
+} from "@controllers/common/plates/plates.validation";
 
 const router = Router();
 
-router.get("/", authMiddleware, listData);
-router.get("/:id", authMiddleware, detailData);
-router.post("/", authMiddleware, platesSchema, createData);
-router.patch("/:id", authMiddleware, platesSchema, updateData);
-router.delete("/:id", authMiddleware, deleteData);
+router.get("/", validateQuery(findAllPlatesSchema), findAllPlates);
+router.get("/:id", validateParams(plateIdSchema), findPlateById);
+router.post("/", validateBody(createPlateSchema), createPlate);
+router.patch("/:id", validateParams(plateIdSchema), validateBody(updatePlateSchema), updatePlate);
+router.delete("/:id", validateParams(plateIdSchema), deletePlate);
 
 export default router;

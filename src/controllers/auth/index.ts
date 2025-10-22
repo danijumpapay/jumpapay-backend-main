@@ -4,18 +4,17 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import authSecret from "@config/auth";
 import { generateId } from "@utils/helpers";
-import { authResponse, successResponse, errorResponse } from "@utils/response";
-import { user } from "@jumpapay/jumpapay-models";
+import { authResponse, successResponseOld, errorResponseOld } from "@utils/response";
+import { user as userSchema } from "@jumpapay/jumpapay-models";
 
 export const login = async (req: Request, res: Response) => {
   const { user, password } = req.body;
 
   try {
-    const dataUser = await user.Users.query()
+    const dataUser = await userSchema.Users.query()
       .select()
       .where((q: Knex.QueryBuilder) =>
-        q.where("user.users.username", user)
-          .orWhere("user.users.phone", user)
+        q.where("user.users.username", user).orWhere("user.users.phone", user)
       )
       .first();
 
@@ -36,11 +35,11 @@ export const login = async (req: Request, res: Response) => {
           role: dataUser.role,
           username: dataUser.username,
           name: dataUser.name,
-          isVerified: !!dataUser.verified_at,
+          isVerified: Boolean(dataUser.verified_at),
         },
         authSecret,
         {
-          expiresIn: 1 * 12 * 60 * 60, 
+          expiresIn: 1 * 12 * 60 * 60,
         }
       );
 
@@ -76,30 +75,28 @@ export const register = async (req: Request, res: Response) => {
       password: hashedPassword,
       is_active: true,
       verified_at: null,
-      role: role || "CUSTOMER", 
+      role: role || "CUSTOMER",
     };
 
-    const isUserExist = await user.Users.querySoftDelete().findOne({ "user.users.phone": phone });
+    const isUserExist = await userSchema.Users.querySoftDelete().findOne({
+      "user.users.phone": phone,
+    });
 
     if (isUserExist) {
-      return res.status(409).json(
-        errorResponse("Phone already exists", { results: null })
-      );
+      return res.status(409).json(errorResponseOld("Phone already exists", { results: null }));
     }
 
-    const findUser = await user.Users.query().insert(formData);
+    const findUser = await userSchema.Users.query().insert(formData);
     const { password, verified_at, is_active, is_reviewer, ...rest } = findUser;
     const updatedUser = {
       ...rest,
-      isVerified: !!verified_at,
+      isVerified: Boolean(verified_at),
       isActive: is_active,
       isReviewer: is_reviewer,
     };
 
-    res.status(201).json(successResponse("Success", { results: updatedUser }));
+    res.status(201).json(successResponseOld("Success", { results: updatedUser }));
   } catch (error) {
-    res.status(504).json(
-      errorResponse("Internal server error", { results: null })
-    );
+    res.status(504).json(errorResponseOld("Internal server error", { results: null }));
   }
 };

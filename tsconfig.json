@@ -43,9 +43,12 @@
       "@dataTypes/*": [
         "src/dataTypes/*"
       ],
+      "@services/*": [
+        "src/services/*"
+      ],
     },
     "types": [
-      "node"
+      "node", "multer"
     ],
     "typeRoots": [
       "./src/types",

@@ -4,7 +4,7 @@ import {
   detailData,
   createData,
   updateData,
-  deleteData
+  deleteData,
 } from "../../../controllers/user/useractivites";
 
 import { usersActivitiesSchema } from "../../../controllers/user/useractivites/useractivities.validation";

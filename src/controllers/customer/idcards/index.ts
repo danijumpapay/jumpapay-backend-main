@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { customer } from "@jumpapay/jumpapay-models";
-import { paginationResponse, successResponse, errorResponse } from "@utils/response";
+import { paginationResponse, successResponseOld, errorResponseOld } from "@utils/response";
 import { generateId } from "@utils/helpers";
 
 //#region - listData
@@ -36,18 +36,18 @@ export const listData = async (req: Request, res: Response) => {
     const { total, results } = await rawQuery;
 
     res.status(200).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         results: {
           pagination: paginationResponse(page, limit, total),
-          data: results
-        }
+          data: results,
+        },
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -74,15 +74,15 @@ export const detailData = async (req: Request, res: Response) => {
       .findById(idCardId);
 
     if (idCard) {
-      res.status(200).json(successResponse("SUCCESS", { results: idCard }));
+      res.status(200).json(successResponseOld("SUCCESS", { results: idCard }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -99,7 +99,8 @@ export const createData = async (req: Request, res: Response) => {
       if (!gender) return null;
 
       const upperGender = gender.toUpperCase();
-      if (upperGender === "MALE" || upperGender === "FEMALE") return upperGender as "MALE" | "FEMALE";
+      if (upperGender === "MALE" || upperGender === "FEMALE")
+        return upperGender as "MALE" | "FEMALE";
 
       return null;
     };
@@ -118,20 +119,18 @@ export const createData = async (req: Request, res: Response) => {
     const idCard = await customer.IdCards.query().insert(formData);
 
     res.status(201).json(
-      successResponse("SUCCESS", {
+      successResponseOld("SUCCESS", {
         errors: null,
-        results: idCard
+        results: idCard,
       })
     );
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(
-        errorResponse(error.message, { errors: null, results: null })
-      );
+      res.status(500).json(errorResponseOld(error.message, { errors: null, results: null }));
     } else {
-      res.status(500).json(
-        errorResponse("Internal server error", { errors: null, results: null })
-      );
+      res
+        .status(500)
+        .json(errorResponseOld("Internal server error", { errors: null, results: null }));
     }
   }
 };
@@ -147,7 +146,8 @@ export const updateData = async (req: Request, res: Response) => {
       if (!gender) return null;
 
       const upperGender = gender.toUpperCase();
-      if (upperGender === "MALE" || upperGender === "FEMALE") return upperGender as "MALE" | "FEMALE";
+      if (upperGender === "MALE" || upperGender === "FEMALE")
+        return upperGender as "MALE" | "FEMALE";
 
       return null;
     };
@@ -165,15 +165,15 @@ export const updateData = async (req: Request, res: Response) => {
       });
 
     if (updated) {
-      res.status(200).json(successResponse("UPDATED", { results: updated }));
+      res.status(200).json(successResponseOld("UPDATED", { results: updated }));
     } else {
-      res.status(404).json(errorResponse("DATA NOT FOUND", { results: null }));
+      res.status(404).json(errorResponseOld("DATA NOT FOUND", { results: null }));
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };
@@ -186,12 +186,12 @@ export const deleteData = async (req: Request, res: Response) => {
   try {
     await customer.IdCards.softDelete(idCardId);
 
-    res.status(200).json(successResponse("Deleted", { results: null }));
+    res.status(200).json(successResponseOld("Deleted", { results: null }));
   } catch (error: unknown) {
     if (error instanceof Error) {
-      res.status(500).json(errorResponse(error.message, { results: null }));
+      res.status(500).json(errorResponseOld(error.message, { results: null }));
     } else {
-      res.status(500).json(errorResponse("Internal server error", { results: null }));
+      res.status(500).json(errorResponseOld("Internal server error", { results: null }));
     }
   }
 };

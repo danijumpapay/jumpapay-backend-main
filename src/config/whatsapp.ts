@@ -6,7 +6,7 @@ dotenv.config();
 
 const waCloudApiURL: string | undefined = process.env.WA_CLOUD_API_URL;
 const waCloudApiVersion: string | undefined = process.env.WA_CLOUD_API_VERSION;
-let baseURL: string | undefined = `${waCloudApiURL}/${waCloudApiVersion}`;
+const baseURL: string | undefined = `${waCloudApiURL}/${waCloudApiVersion}`;
 const token: string | undefined = process.env.WA_CLOUD_API_ACCESS_TOKEN;
 const waPhoneNumberId: string | number = process.env.WA_PHONE_NUMBER_ID || "400686439798296";
 
@@ -25,13 +25,10 @@ const axiosInstance = (withPhoneNumberId: boolean = true) => {
     },
     (error) => {
       return Promise.reject(error);
-    },
+    }
   );
 
-  instance.interceptors.response.use(
-    (response) => response,
-    errorResponseHandler,
-  );
+  instance.interceptors.response.use((response) => response, errorResponseHandler);
 
   return instance;
 };

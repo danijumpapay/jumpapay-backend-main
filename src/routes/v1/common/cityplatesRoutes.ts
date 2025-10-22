@@ -1,21 +1,30 @@
 import { Router } from "express";
 import {
-  listData,
-  detailData,
-  createData,
-  updateData,
-  deleteData,
-} from "../../../controllers/common/cityplates";
-
-import { cityPlatesSchema } from "../../../controllers/common/cityplates/cityplates.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+  findAllCityPlates,
+  findCityPlateById,
+  createCityPlate,
+  updateCityPlate,
+  deleteCityPlate,
+} from "@controllers/common/cityplates";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
+import {
+  findAllCityPlatesSchema,
+  cityPlateIdSchema,
+  createCityPlateSchema,
+  updateCityPlateSchema,
+} from "@controllers/common/cityplates/cityplates.validation";
 
 const router = Router();
 
-router.get("/", authMiddleware, listData);
-router.get("/:id", authMiddleware, detailData);
-router.post("/", authMiddleware, cityPlatesSchema, createData);
-router.patch("/:id", authMiddleware, cityPlatesSchema, updateData);
-router.delete("/:id", authMiddleware, deleteData);
+router.get("/", validateQuery(findAllCityPlatesSchema), findAllCityPlates);
+router.get("/:id", validateParams(cityPlateIdSchema), findCityPlateById);
+router.post("/", validateBody(createCityPlateSchema), createCityPlate);
+router.patch(
+  "/:id",
+  validateParams(cityPlateIdSchema),
+  validateBody(updateCityPlateSchema),
+  updateCityPlate
+);
+router.delete("/:id", validateParams(cityPlateIdSchema), deleteCityPlate);
 
 export default router;
