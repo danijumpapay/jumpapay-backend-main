@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import servicesService from "@services/service/services.service";
+import servicesdashboardService from "@services/service/servicesdashboard.service";
 import { successResponse, successListResponse } from "@utils/response";
 import { Model } from "objection";
 
@@ -7,22 +8,17 @@ interface RequestWithUser extends Request {
   user?: any;
 }
 
-export const findAllServices = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findAllServicesForDashboard = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const query = req.query as any;
     const options = {
       limit: query.limit,
       offset: query.offset,
       search: query.search,
-      slug: query.slug,
-      is_public: query.is_public,
-      is_fixed_price: query.is_fixed_price,
-      is_location_required: query.is_location_required,
-      status: query.status,
       sort: query.sort,
       withFees: query.withFees,
     };
-    const data = await servicesService.findAll(options);
+    const data = await servicesdashboardService.findAll(options);
     successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
   } catch (error) {
     next(error);

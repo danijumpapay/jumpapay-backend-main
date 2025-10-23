@@ -1,4 +1,5 @@
 import { Response, NextFunction, Request } from "express";
+import { convertKeysToCamel } from "./helpers";
 
 interface PaginationMeta {
   total: number;
@@ -14,6 +15,34 @@ interface SuccessResponse {
   [key: string]: any;
 }
 
+interface ErrorResponse {
+  success: boolean;
+  message: string;
+  [key: string]: any;
+}
+
+interface PaginationResponse {
+  page: number;
+  next: number;
+  prev: number;
+  limit: number;
+  totalPage: number;
+  totalData: number;
+}
+
+interface AuthResponse {
+  success: boolean;
+  message: string;
+  accessToken?: string | null;
+  userData?: object | null;
+}
+
+interface NoAccessResponse {
+  success: boolean;
+  message: string;
+  [key: string]: any;
+}
+
 export const successResponseOld = (message: string, results: object): SuccessResponse => {
   const response: SuccessResponse = {
     success: true,
@@ -24,12 +53,6 @@ export const successResponseOld = (message: string, results: object): SuccessRes
   return response;
 };
 
-interface ErrorResponse {
-  success: boolean;
-  message: string;
-  [key: string]: any;
-}
-
 export const errorResponseOld = (message: string, results?: object): ErrorResponse => {
   const response: ErrorResponse = {
     success: false,
@@ -39,15 +62,6 @@ export const errorResponseOld = (message: string, results?: object): ErrorRespon
 
   return response;
 };
-
-interface PaginationResponse {
-  page: number;
-  next: number;
-  prev: number;
-  limit: number;
-  totalPage: number;
-  totalData: number;
-}
 
 export const paginationResponse = (
   page: number,
@@ -66,13 +80,6 @@ export const paginationResponse = (
   return response;
 };
 
-interface AuthResponse {
-  success: boolean;
-  message: string;
-  accessToken?: string | null;
-  userData?: object | null;
-}
-
 export const authResponse = (
   status: boolean,
   message: string,
@@ -86,12 +93,6 @@ export const authResponse = (
     userData: user,
   };
 };
-
-interface NoAccessResponse {
-  success: boolean;
-  message: string;
-  [key: string]: any;
-}
 
 export const noAccess = (results: object): NoAccessResponse => {
   const response: NoAccessResponse = {
@@ -113,7 +114,7 @@ export const successResponse = (res: Response, statusCode: number, data: any, me
     responseBody.data = data;
   }
 
-  res.status(statusCode).json(responseBody);
+  res.status(statusCode).json(convertKeysToCamel(responseBody));
 };
 
 export const successListResponse = (
@@ -141,7 +142,7 @@ export const successListResponse = (
     currentPage,
   };
 
-  res.status(statusCode).json(responseBody);
+  res.status(statusCode).json(convertKeysToCamel(responseBody));
 };
 
 export const errorResponse = (res: Response, statusCode: number, message: string, errors?: any) => {

@@ -1,5 +1,5 @@
 import { common } from "@jumpapay/jumpapay-models";
-import { NotFoundError, BadRequestError } from "../../utils/errors";
+import { NotFoundError, BadRequestError } from "@utils/errors";
 import { Page, QueryBuilder, Transaction } from "objection";
 
 type CreateCityPlateInput = Pick<common.CityPlates, "city_id" | "plate_id"> &

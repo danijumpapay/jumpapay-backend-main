@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/user/usertoken";
+} from "@controllers/user/usertoken";
 
-import { userTokenSchema } from "../../../controllers/user/usertoken/usertoken.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { userTokenSchema } from "@controllers/user/usertoken/usertoken.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

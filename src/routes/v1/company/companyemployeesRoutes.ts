@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/company/companyemployees";
+} from "@controllers/company/companyemployees";
 
-import { companyEmployeesSchema } from "../../../controllers/company/companyemployees/companyemployees.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { companyEmployeesSchema } from "@controllers/company/companyemployees/companyemployees.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

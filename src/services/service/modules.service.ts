@@ -1,5 +1,5 @@
 import { service } from "@jumpapay/jumpapay-models";
-import { NotFoundError, BadRequestError } from "../../utils/errors";
+import { NotFoundError, BadRequestError } from "@utils/errors";
 import { Page, QueryBuilder, Transaction } from "objection";
 
 type CreateModuleInput = Pick<service.Modules, "module_group_id" | "name"> &

@@ -5,9 +5,9 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/customer/bpkbdocuments/index";
-import { bpkbDocumentsSchema } from "../../../controllers/customer/bpkbdocuments/bpkbdocuments.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+} from "@controllers/customer/bpkbdocuments/index";
+import { bpkbDocumentsSchema } from "@controllers/customer/bpkbdocuments/bpkbdocuments.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

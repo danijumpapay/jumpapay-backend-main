@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/customer/vehicleimages";
+} from "@controllers/customer/vehicleimages";
 
-import { vehicleImagesSchema } from "../../../controllers/customer/vehicleimages/vehicleimages.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { vehicleImagesSchema } from "@controllers/customer/vehicleimages/vehicleimages.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

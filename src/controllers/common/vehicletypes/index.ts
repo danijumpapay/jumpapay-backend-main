@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import vehicleTypesService from "../../../services/common/vehicletypes.service";
-import { successResponse, successListResponse } from "../../../utils/response";
+import vehicleTypesService from "@services/common/vehicletypes.service";
+import { successResponse, successListResponse } from "@utils/response";
 import { Model } from "objection";
 
 interface RequestWithUser extends Request {

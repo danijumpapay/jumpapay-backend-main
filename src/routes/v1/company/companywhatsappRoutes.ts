@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/company/companywhatsapp";
+} from "@controllers/company/companywhatsapp";
 
-import { companyWhatsappSchema } from "../../../controllers/company/companywhatsapp/companywhatsapp.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { companyWhatsappSchema } from "@controllers/company/companywhatsapp/companywhatsapp.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

@@ -5,9 +5,9 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/user/users/index";
-import { usersSchema } from "../../../controllers/user/users/users.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+} from "@controllers/user/users/index";
+import { usersSchema } from "@controllers/user/users/users.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

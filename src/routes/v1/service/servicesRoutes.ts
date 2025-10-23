@@ -5,20 +5,23 @@ import {
   createService,
   updateService,
   deleteService,
-} from "../../../controllers/service/services";
+} from "@controllers/service/services";
 import {
   validateQuery,
   validateParams,
   validateBody,
-} from "../../../middlewares/validationMiddleware";
+} from "@middlewares/validationMiddleware";
 import {
   findAllServicesSchema,
   serviceIdSchema,
   createServiceSchema,
   updateServiceSchema,
-} from "../../../controllers/service/services/services.validation";
+} from "@controllers/service/services/services.validation";
+import servicesdashboardRoutes from "./servicesdashboardRoutes";
 
 const router = Router();
+
+router.use("/dashboard", servicesdashboardRoutes);
 
 router.get("/", validateQuery(findAllServicesSchema), findAllServices);
 router.get("/:id", validateParams(serviceIdSchema), findServiceById);
@@ -30,5 +33,6 @@ router.patch(
   updateService
 );
 router.delete("/:id", validateParams(serviceIdSchema), deleteService);
+
 
 export default router;

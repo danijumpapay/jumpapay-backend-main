@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import moduleGroupsService from "../../../services/service/modulegroups.service";
-import { successResponse, successListResponse } from "../../../utils/response";
+import moduleGroupsService from "@services/service/modulegroups.service";
+import { successResponse, successListResponse } from "@utils/response";
 import { Model } from "objection";
 
 interface RequestWithUser extends Request {

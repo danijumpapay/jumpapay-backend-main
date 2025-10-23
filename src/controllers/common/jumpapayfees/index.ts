@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jumpapayFeesService from "../../../services/common/jumpapayfees.service";
-import { successResponse, successListResponse } from "../../../utils/response";
+import jumpapayFeesService from "@services/common/jumpapayfees.service";
+import { successResponse, successListResponse } from "@utils/response";
 import { Model } from "objection";
 
 interface RequestWithUser extends Request {

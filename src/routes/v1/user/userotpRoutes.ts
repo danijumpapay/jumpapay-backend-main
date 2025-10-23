@@ -5,9 +5,9 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/user/userotp/index";
-import { userOtpSchema } from "../../../controllers/user/userotp/userotp.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+} from "@controllers/user/userotp/index";
+import { userOtpSchema } from "@controllers/user/userotp/userotp.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

@@ -5,18 +5,18 @@ import {
   createSamsat,
   updateSamsat,
   deleteSamsat,
-} from "../../../controllers/common/samsat";
+} from "@controllers/common/samsat";
 import {
   validateQuery,
   validateParams,
   validateBody,
-} from "../../../middlewares/validationMiddleware";
+} from "@middlewares/validationMiddleware";
 import {
   findAllSamsatSchema,
   samsatIdSchema,
   createSamsatSchema,
   updateSamsatSchema,
-} from "../../../controllers/common/samsat/samsat.validation";
+} from "@controllers/common/samsat/samsat.validation";
 
 const router = Router();
 

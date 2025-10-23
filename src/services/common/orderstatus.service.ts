@@ -1,5 +1,5 @@
 import { common } from "@jumpapay/jumpapay-models";
-import { NotFoundError } from "../../utils/errors";
+import { NotFoundError } from "@utils/errors";
 import { Page, QueryBuilder, Transaction } from "objection";
 
 type CreateOrderStatusInput = Pick<common.OrderStatus, "name"> &

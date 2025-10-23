@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/customer/stnkdocuments";
+} from "@controllers/customer/stnkdocuments";
 
-import { stnkDocumentsSchema } from "../../../controllers/customer/stnkdocuments/stnkdocuments.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { stnkDocumentsSchema } from "@controllers/customer/stnkdocuments/stnkdocuments.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

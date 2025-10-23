@@ -5,18 +5,18 @@ import {
   createPaymentMethod,
   updatePaymentMethod,
   deletePaymentMethod,
-} from "../../../controllers/common/paymentmethods";
+} from "@controllers/common/paymentmethods";
 import {
   validateQuery,
   validateParams,
   validateBody,
-} from "../../../middlewares/validationMiddleware";
+} from "@middlewares/validationMiddleware";
 import {
   findAllPaymentMethodsSchema,
   paymentMethodIdSchema,
   createPaymentMethodSchema,
   updatePaymentMethodSchema,
-} from "../../../controllers/common/paymentmethods/paymentmethods.validation";
+} from "@controllers/common/paymentmethods/paymentmethods.validation";
 
 const router = Router();
 

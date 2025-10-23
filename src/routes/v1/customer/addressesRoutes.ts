@@ -5,9 +5,9 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/customer/addresses/index";
-import { addressesSchema } from "../../../controllers/customer/addresses/addresses.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+} from "@controllers/customer/addresses/index";
+import { addressesSchema } from "@controllers/customer/addresses/addresses.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

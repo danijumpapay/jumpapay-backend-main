@@ -1,5 +1,5 @@
 import { common, service } from "@jumpapay/jumpapay-models";
-import { NotFoundError, BadRequestError } from "../../utils/errors";
+import { NotFoundError, BadRequestError } from "@utils/errors";
 import { Page, QueryBuilder, Transaction } from "objection";
 
 type CreateFeeServiceInput = Omit<common.JumpapayFeeServices, "id">;

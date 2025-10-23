@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/user/usersosialmedia/index";
+} from "@controllers/user/usersosialmedia/index";
 
-import { userSosialMediaSchema } from "../../../controllers/user/usersosialmedia/usersosialmedia.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { userSosialMediaSchema } from "@controllers/user/usersosialmedia/usersosialmedia.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 

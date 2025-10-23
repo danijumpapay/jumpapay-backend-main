@@ -5,10 +5,10 @@ import {
   createData,
   updateData,
   deleteData,
-} from "../../../controllers/customer/idcards/index";
+} from "@controllers/customer/idcards/index";
 
-import { idCardSchema } from "../../../controllers/customer/idcards/idcards.validation";
-import authMiddleware from "../../../middlewares/authMiddleware";
+import { idCardSchema } from "@controllers/customer/idcards/idcards.validation";
+import authMiddleware from "@middlewares/authMiddleware";
 
 const router = Router();
 
