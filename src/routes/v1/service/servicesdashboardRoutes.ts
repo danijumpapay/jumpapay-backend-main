@@ -1,10 +1,7 @@
 import { Router } from "express";
 import {
   findAllServicesForDashboard,
-  findServiceById,
-  createService,
-  updateService,
-  deleteService,
+  findServiceBySlug,
 } from "@controllers/service/servicesdashboard";
 import {
   validateQuery,
@@ -21,13 +18,6 @@ import {
 const router = Router();
 
 router.get("/", validateQuery(findAllServicesForDashboardSchema), findAllServicesForDashboard);
-router.get("/:slug", validateParams(serviceSlugSchema), findServiceById);
-router.post("/", validateBody(createServiceSchema), createService);
-router.patch(
-  "/:id",
-  validateParams(serviceSlugSchema),
-  validateBody(updateServiceSchema),
-  updateService
-);
+router.get("/:slug", validateParams(serviceSlugSchema), findServiceBySlug);
 
 export default router;

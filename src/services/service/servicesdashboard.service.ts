@@ -71,6 +71,36 @@ export class ServicesDashboard extends ServicesService {
     const servicesPage: Page<service.Services> = await query.page(page, limit);
     return servicesPage;
   }
+
+  async findBySlug(slug: string): Promise<service.Services> {
+    let query = service.Services.query()
+      .select(
+        `${service.Services.tableName}.id`,
+        `${service.Services.tableName}.name`,
+        `${service.Services.tableName}.slug`,
+        `${service.Services.tableName}.price`,
+        `${service.Services.tableName}.is_fixed_price`,
+        `${service.Services.tableName}.is_location_required`,
+        `${service.Services.tableName}.description`,
+        `${service.Services.tableName}.image`,
+      )
+      .findOne(`${service.Services.tableName}.slug`, slug)
+      .where(`${service.Services.tableName}.status`, "PUBLISH")
+      .whereNull("deleted_at");
+
+    const eagerGraph: Record<string, any> = {};
+    eagerGraph.htmlForm = true;
+
+    if (Object.keys(eagerGraph).length > 0) {
+      query = query.withGraphFetched(eagerGraph);
+    }
+
+    const svc = await query;
+    if (!svc) {
+      throw new NotFoundError(`Service with slug ${slug} not found`);
+    }
+    return svc;
+  }
 }
 
 export default new ServicesDashboard();
