@@ -1,6 +1,7 @@
 import { transaction, common, user, company, service } from "@jumpapay/jumpapay-models";
 import { NotFoundError, BadRequestError } from "@utils/errors";
-import { Page, QueryBuilder, Transaction } from "objection";
+import { Page, QueryBuilder, raw, Transaction } from "objection";
+import { gmapsLink } from "@utils/helpers";
 
 type OrderTypeValue = "INVOICING" | "NON INVOICING";
 type OrderPositionValue = "VERIFICATION" | "SHOPPING BAG" | "LIVE ORDER" | "FINAL";
@@ -60,6 +61,8 @@ interface FindAllOrdersOptions {
   withAddresses?: boolean;
   withNotes?: boolean;
   withPayments?: boolean;
+  isPaid?: boolean;
+  isCompleted?: boolean;
 }
 
 export class OrdersService {
@@ -204,6 +207,149 @@ export class OrdersService {
           )
           .whereNull("deleted_at")
           .orderBy("created_at", "DESC");
+      },
+    };
+
+    if (Object.keys(eagerGraph).length > 0) {
+      query = query.withGraphFetched(eagerGraph).modifiers(modifiers);
+    }
+
+    const page = Math.floor(offset / limit);
+    const ordersPage: Page<transaction.Orders> = await query.page(page, limit);
+    return ordersPage;
+  }
+
+  async findAllB2C({
+    limit,
+    offset,
+    user_id,
+    order_status_id,
+    booking_id,
+    phone,
+    city_id,
+    source,
+    status,
+    payment_type,
+    paid_at_start,
+    paid_at_end,
+    created_at_start,
+    created_at_end,
+    sort,
+    isPaid,
+    isCompleted,
+  }: FindAllOrdersOptions): Promise<Page<transaction.Orders>> {
+    const T_ORDERS = transaction.Orders.tableName;
+    let query = transaction.Orders.query()
+      .select(
+        `${T_ORDERS}.id`,
+        `${T_ORDERS}.user_id`,
+        `users.name as user_name`,
+        `users.phone as user_phone`,
+        `${T_ORDERS}.company_id`,
+        `companies.name as company_name`,
+        `${T_ORDERS}.order_status_id`,
+        "order_status.name as order_status_name",
+        "order_status.code as order_code",
+        `${T_ORDERS}.booking_id`,
+        `${T_ORDERS}.phone`,
+        `${T_ORDERS}.source`,
+        `${T_ORDERS}.status`,
+        `${T_ORDERS}.paid_at`,
+        `${T_ORDERS}.payment_type`,
+        `${T_ORDERS}.created_at`,
+        `${T_ORDERS}.email`,
+        `${T_ORDERS}.price`,
+      )
+      .leftJoin("company.companies", "companies.id", `${T_ORDERS}.company_id`)
+      .leftJoin("user.users", "users.id", `${T_ORDERS}.user_id`)
+      .leftJoin("common.order_status", "order_status.id", `${T_ORDERS}.order_status_id`)
+      .where(`${T_ORDERS}.order_category`, "B2C")
+      .whereNull(`${T_ORDERS}.deleted_at`);
+
+    if (isPaid != null) {
+      if (isPaid === true) {
+        query = query.whereNotNull(`${T_ORDERS}.paid_at`).whereRaw("order_status.code IS DISTINCT FROM ?", ["COMPLETED"]);
+      } else if (isPaid === false) {
+        query = query.whereNull(`${T_ORDERS}.paid_at`)
+      }
+    };
+    if (isCompleted) query = query.where("order_status.code", "COMPLETED").whereNotNull(`${T_ORDERS}.paid_at`);
+    if (user_id) query = query.where(`${T_ORDERS}.user_id`, user_id);
+    if (order_status_id) query = query.where(`${T_ORDERS}.order_status_id`, order_status_id);
+    if (booking_id) query = query.where(`${T_ORDERS}.booking_id`, "ilike", `%${booking_id}%`);
+    if (phone) query = query.where(`${T_ORDERS}.phone`, "ilike", `%${phone}%`);
+    if (city_id) query = query.where(`${T_ORDERS}.city_id`, city_id);
+    if (source) query = query.where(`${T_ORDERS}.source`, "ilike", `%${source}%`);
+    if (status) query = query.where(`${T_ORDERS}.status`, "ilike", `%${status}%`);
+    if (payment_type) query = query.where(`${T_ORDERS}.payment_type`, "ilike", `%${payment_type}%`);
+    if (paid_at_start) query = query.where(`${T_ORDERS}.paid_at`, ">=", paid_at_start);
+    if (paid_at_end) query = query.where(`${T_ORDERS}.paid_at`, "<=", paid_at_end);
+    if (created_at_start) query = query.where(`${T_ORDERS}.created_at`, ">=", created_at_start);
+    if (created_at_end) query = query.where(`${T_ORDERS}.created_at`, "<=", created_at_end);
+
+    if (sort) {
+      const [column, direction] = sort.split(":");
+
+      const allowedSortColumns = [
+        "id",
+        "user_id",
+        "company_id",
+        "phone",
+        "source",
+        "order_status_id",
+        "booking_id",
+        "created_at",
+        "paid_at",
+        "price",
+        "status",
+      ];
+
+      const sortColumn = allowedSortColumns.includes(column)
+        ? `${T_ORDERS}.${column}`
+        : `${T_ORDERS}.created_at`;
+      if (["asc", "desc"].includes(direction.toLowerCase())) {
+        query = query.orderBy(sortColumn, direction.toUpperCase() as "ASC" | "DESC");
+      }
+    } else {
+      query = query.orderBy(`${T_ORDERS}.created_at`, "DESC");
+    }
+
+    // console.log(query.toKnexQuery().toSQL().toNative())
+    const T_ORDER_DETAILS: string = transaction.OrderDetails.tableName;
+    const eagerGraph: Record<string, any> = {};
+    eagerGraph.details = {
+      $modify: ["orderDetails"],
+    };
+    // eagerGraph.addresses = { $modify: ["activeAddressOnly"] };
+
+    const modifiers = {
+      orderDetails: (builder: QueryBuilder<transaction.OrderDetails>) => {
+        builder.select(
+          `${T_ORDER_DETAILS}.id`,
+          `${T_ORDER_DETAILS}.service_id`,
+          "services.name as service_name",
+          `${T_ORDER_DETAILS}.price`,
+          `${T_ORDER_DETAILS}.is_stnk_equals_ktp`,
+          `${T_ORDER_DETAILS}.is_stnk_equals_bpkb`,
+          `${T_ORDER_DETAILS}.is_same_location`,
+          `${T_ORDER_DETAILS}.name as user_name`,
+          `${T_ORDER_DETAILS}.samsat_id`,
+          `samsat.name as samsat_name`,
+          raw(`
+            CASE 
+              WHEN samsat.latitude IS NOT NULL AND samsat.longitude IS NOT NULL 
+              THEN CONCAT(samsat.latitude, ',', samsat.longitude)
+              ELSE NULL
+            END AS samsat_long_lat
+          `),
+          raw(`CONCAT(${T_ORDER_DETAILS}.plate_prefix, ' ', ${T_ORDER_DETAILS}.plate_number, ' ', ${T_ORDER_DETAILS}.plate_serial) as plate`),
+        )
+        .leftJoin("service.services", "services.id", `${T_ORDER_DETAILS}.service_id`)
+        .leftJoin("common.samsat", "samsat.id", `${T_ORDER_DETAILS}.samsat_id`)
+        .orderBy("id", "ASC");
+      },
+      activeAddressOnly: (builder: QueryBuilder<transaction.OrderAddresses>) => {
+        builder.orderBy("delivery_type", "ASC");
       },
     };
 

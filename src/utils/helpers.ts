@@ -24,6 +24,7 @@ export const snakeToCamel = (str: string): string => {
 };
 
 export const convertKeysToCamel = <T>(data: T): T => {
+  // return data;
   if (Array.isArray(data)) {
     return data.map((item) => convertKeysToCamel(item)) as unknown as T;
   } else if (data !== null && typeof data === "object") {
@@ -52,4 +53,11 @@ export const uploadToS3 = async (file: Express.Multer.File) => {
 
 export const generateTokenString = (bytes = 32): string => {
   return crypto.randomBytes(bytes).toString("hex");
+};
+
+export const gmapsLink = (
+  longitude: number | null = 0,
+  latitude: number | null = 0
+): string => {
+  return `https://maps.google.com/?q=${latitude},${longitude}`;
 };

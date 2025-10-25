@@ -38,6 +38,28 @@ export const findAllOrdersSchema = Joi.object({
   withPayments: Joi.boolean().default(false),
 });
 
+export const findAllB2COrdersSchema = Joi.object({
+  limit: Joi.number().integer().min(1).default(10).label("Limit"),
+  offset: Joi.number().integer().min(0).default(0).label("Offset"),
+  user_id: Joi.string().max(200).label("User ID Filter"),
+  company_id: Joi.string().max(200).label("Company ID Filter"),
+  order_status_id: Joi.number().integer().label("Order Status ID Filter"),
+  booking_id: Joi.string().max(100).label("Booking ID Filter"),
+  phone: Joi.string().max(30).label("Phone Number Filter"),
+  city_id: Joi.number().integer().label("City ID Filter"),
+  source: Joi.string().max(100).label("Source Filter"),
+  status: Joi.string().max(100).label("Legacy Status Filter"),
+  payment_type: Joi.string().max(200).label("Payment Type Filter"),
+  paid_at_start: Joi.date().iso().label("Paid At Start Date (ISO)"),
+  paid_at_end: Joi.date().iso().label("Paid At End Date (ISO)"),
+  created_at_start: Joi.date().iso().label("Created At Start Date (ISO)"),
+  created_at_end: Joi.date().iso().label("Created At End Date (ISO)"),
+  sort: Joi.string()
+    .trim()
+    .pattern(/^([a-zA-Z0-9_]+):(asc|desc)$/i)
+    .label("Sort (column:direction)"),
+});
+
 export const orderIdSchema = Joi.object({
   id: Joi.string().max(200).required().label("Order ID"),
 });

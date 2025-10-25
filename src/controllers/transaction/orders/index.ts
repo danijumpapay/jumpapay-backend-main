@@ -44,6 +44,165 @@ export const findAllOrders = async (req: RequestWithUser, res: Response, next: N
   }
 };
 
+export const findAllB2COrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      user_id: query.user_id,
+      company_id: query.company_id,
+      order_status_id: query.order_status_id,
+      booking_id: query.booking_id,
+      phone: query.phone,
+      city_id: query.city_id,
+      source: query.source,
+      status: query.status,
+      order_type: query.order_type,
+      order_position: query.order_position,
+      payment_type: query.payment_type,
+      paid_at_start: query.paid_at_start,
+      paid_at_end: query.paid_at_end,
+      created_at_start: query.created_at_start,
+      created_at_end: query.created_at_end,
+      sort: query.sort,
+      withStatus: query.withStatus,
+      withDetails: query.withDetails,
+      withAddresses: query.withAddresses,
+      withNotes: query.withNotes,
+      withPayments: query.withPayments,
+    };
+    const data = await ordersService.findAllB2C(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const findAllB2CUnpaidOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      user_id: query.user_id,
+      company_id: query.company_id,
+      order_status_id: query.order_status_id,
+      booking_id: query.booking_id,
+      phone: query.phone,
+      city_id: query.city_id,
+      source: query.source,
+      status: query.status,
+      order_type: query.order_type,
+      order_position: query.order_position,
+      payment_type: query.payment_type,
+      created_at_start: query.created_at_start,
+      created_at_end: query.created_at_end,
+      sort: query.sort,
+      isPaid: false,
+    };
+    const data = await ordersService.findAllB2C(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const findAllB2CPaidOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      user_id: query.user_id,
+      company_id: query.company_id,
+      order_status_id: query.order_status_id,
+      booking_id: query.booking_id,
+      phone: query.phone,
+      city_id: query.city_id,
+      source: query.source,
+      status: query.status,
+      order_type: query.order_type,
+      order_position: query.order_position,
+      payment_type: query.payment_type,
+      created_at_start: query.created_at_start,
+      created_at_end: query.created_at_end,
+      sort: query.sort,
+      isPaid: true,
+    };
+    const data = await ordersService.findAllB2C(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const findAllB2CCompletedOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      user_id: query.user_id,
+      company_id: query.company_id,
+      order_status_id: query.order_status_id,
+      booking_id: query.booking_id,
+      phone: query.phone,
+      city_id: query.city_id,
+      source: query.source,
+      status: query.status,
+      order_type: query.order_type,
+      order_position: query.order_position,
+      payment_type: query.payment_type,
+      created_at_start: query.created_at_start,
+      created_at_end: query.created_at_end,
+      sort: query.sort,
+      isCompleted: true
+    };
+    const data = await ordersService.findAllB2C(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const findAllB2BOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as any;
+    const options: any = {
+      limit: query.limit,
+      offset: query.offset,
+      user_id: query.user_id,
+      company_id: query.company_id,
+      order_status_id: query.order_status_id,
+      booking_id: query.booking_id,
+      phone: query.phone,
+      city_id: query.city_id,
+      source: query.source,
+      status: query.status,
+      order_type: query.order_type,
+      order_position: query.order_position,
+      payment_type: query.payment_type,
+      paid_at_start: query.paid_at_start,
+      paid_at_end: query.paid_at_end,
+      created_at_start: query.created_at_start,
+      created_at_end: query.created_at_end,
+      sort: query.sort,
+      withUser: query.withUser,
+      withCompany: query.withCompany,
+      withStatus: query.withStatus,
+      withDetails: query.withDetails,
+      withAddresses: query.withAddresses,
+      withNotes: query.withNotes,
+      withPayments: query.withPayments,
+    };
+    const data = await ordersService.findAll(options);
+    successListResponse(res, 200, data.results, data.total, options.limit, options.offset);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const findOrderById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
