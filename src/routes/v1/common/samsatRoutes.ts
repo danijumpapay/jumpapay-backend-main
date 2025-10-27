@@ -6,11 +6,7 @@ import {
   updateSamsat,
   deleteSamsat,
 } from "@controllers/common/samsat";
-import {
-  validateQuery,
-  validateParams,
-  validateBody,
-} from "@middlewares/validationMiddleware";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
 import {
   findAllSamsatSchema,
   samsatIdSchema,

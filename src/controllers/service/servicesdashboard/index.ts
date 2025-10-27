@@ -8,7 +8,11 @@ interface RequestWithUser extends Request {
   user?: any;
 }
 
-export const findAllServicesForDashboard = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findAllServicesForDashboard = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const query = req.query as any;
     const options = {
@@ -25,7 +29,11 @@ export const findAllServicesForDashboard = async (req: RequestWithUser, res: Res
   }
 };
 
-export const findServiceBySlug = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findServiceBySlug = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const slug = String(req.params.slug);
     const query = req.query as any;

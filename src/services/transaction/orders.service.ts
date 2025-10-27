@@ -69,7 +69,7 @@ interface Courier {
   id: string;
   name: string;
   phone: string;
-};
+}
 
 interface OrderDetail extends ModelObject<transaction.OrderDetails> {
   service_name: string;
@@ -77,7 +77,7 @@ interface OrderDetail extends ModelObject<transaction.OrderDetails> {
   documents: transaction.OrderDetailDocuments;
   formDatas: transaction.OrderFormDatas;
   fees: transaction.OrderDetailFees;
-};
+}
 
 interface Order extends ModelObject<transaction.Orders> {
   user_name: string;
@@ -85,25 +85,34 @@ interface Order extends ModelObject<transaction.Orders> {
   company_name: string;
   order_status_name: string;
   order_code: string;
-  details: transaction.OrderDetails & {
-    service_name: string;
-    samsat_name: string;
-    documents: transaction.OrderDetailDocuments;
-    formDatas: transaction.OrderFormDatas;
-    fees: transaction.OrderDetailFees;
-  }[];
-  orderAddresses?: transaction.OrderAddresses & {
-    user?: Courier,
-    courier?: Courier,
-  }[];
+  details: transaction.OrderDetails &
+    {
+      service_name: string;
+      samsat_name: string;
+      documents: transaction.OrderDetailDocuments;
+      formDatas: transaction.OrderFormDatas;
+      fees: transaction.OrderDetailFees;
+    }[];
+  orderAddresses?: transaction.OrderAddresses &
+    {
+      user?: Courier;
+      courier?: Courier;
+    }[];
   notes: transaction.OrderNotes;
-};
+}
 
 interface GroupedFee {
   group_name: string;
   order_group: number;
   items: transaction.OrderDetailFees[];
 }
+
+interface Fee {
+  id: string;
+  fee_name: string;
+  value: number;
+  order: number;
+};
 
 export class OrdersService {
   async findAll({
@@ -283,10 +292,10 @@ export class OrdersService {
       .select(
         `${T_ORDERS}.id`,
         `${T_ORDERS}.user_id`,
-        `users.name as user_name`,
-        `users.phone as user_phone`,
+        "users.name as user_name",
+        "users.phone as user_phone",
         `${T_ORDERS}.company_id`,
-        `companies.name as company_name`,
+        "companies.name as company_name",
         `${T_ORDERS}.order_status_id`,
         "order_status.name as order_status_name",
         "order_status.code as order_code",
@@ -298,7 +307,7 @@ export class OrdersService {
         `${T_ORDERS}.payment_type`,
         `${T_ORDERS}.created_at`,
         `${T_ORDERS}.email`,
-        `${T_ORDERS}.price`,
+        `${T_ORDERS}.price`
       )
       .leftJoin("company.companies", "companies.id", `${T_ORDERS}.company_id`)
       .leftJoin("user.users", "users.id", `${T_ORDERS}.user_id`)
@@ -306,14 +315,17 @@ export class OrdersService {
       .where(`${T_ORDERS}.order_category`, "B2C")
       .whereNull(`${T_ORDERS}.deleted_at`);
 
-    if (isPaid != null) {
+    if (isPaid !== null) {
       if (isPaid === true) {
-        query = query.whereNotNull(`${T_ORDERS}.paid_at`).whereRaw("order_status.code IS DISTINCT FROM ?", ["COMPLETED"]);
+        query = query
+          .whereNotNull(`${T_ORDERS}.paid_at`)
+          .whereRaw("order_status.code IS DISTINCT FROM ?", ["COMPLETED"]);
       } else if (isPaid === false) {
-        query = query.whereNull(`${T_ORDERS}.paid_at`)
+        query = query.whereNull(`${T_ORDERS}.paid_at`);
       }
-    };
-    if (isCompleted) query = query.where("order_status.code", "COMPLETED").whereNotNull(`${T_ORDERS}.paid_at`);
+    }
+    if (isCompleted)
+      query = query.where("order_status.code", "COMPLETED").whereNotNull(`${T_ORDERS}.paid_at`);
     if (user_id) query = query.where(`${T_ORDERS}.user_id`, user_id);
     if (order_status_id) query = query.where(`${T_ORDERS}.order_status_id`, order_status_id);
     if (booking_id) query = query.where(`${T_ORDERS}.booking_id`, "ilike", `%${booking_id}%`);
@@ -364,29 +376,32 @@ export class OrdersService {
 
     const modifiers = {
       orderDetails: (builder: QueryBuilder<transaction.OrderDetails>) => {
-        builder.select(
-          `${T_ORDER_DETAILS}.id`,
-          `${T_ORDER_DETAILS}.service_id`,
-          "services.name as service_name",
-          `${T_ORDER_DETAILS}.price`,
-          `${T_ORDER_DETAILS}.is_stnk_equals_ktp`,
-          `${T_ORDER_DETAILS}.is_stnk_equals_bpkb`,
-          `${T_ORDER_DETAILS}.is_same_location`,
-          `${T_ORDER_DETAILS}.name as user_name`,
-          `${T_ORDER_DETAILS}.samsat_id`,
-          `samsat.name as samsat_name`,
-          raw(`
+        builder
+          .select(
+            `${T_ORDER_DETAILS}.id`,
+            `${T_ORDER_DETAILS}.service_id`,
+            "services.name as service_name",
+            `${T_ORDER_DETAILS}.price`,
+            `${T_ORDER_DETAILS}.is_stnk_equals_ktp`,
+            `${T_ORDER_DETAILS}.is_stnk_equals_bpkb`,
+            `${T_ORDER_DETAILS}.is_same_location`,
+            `${T_ORDER_DETAILS}.name as user_name`,
+            `${T_ORDER_DETAILS}.samsat_id`,
+            "samsat.name as samsat_name",
+            raw(`
             CASE 
               WHEN samsat.latitude IS NOT NULL AND samsat.longitude IS NOT NULL 
               THEN CONCAT(samsat.latitude, ',', samsat.longitude)
               ELSE NULL
             END AS samsat_long_lat
           `),
-          raw(`CONCAT(${T_ORDER_DETAILS}.plate_prefix, ' ', ${T_ORDER_DETAILS}.plate_number, ' ', ${T_ORDER_DETAILS}.plate_serial) as plate`),
-        )
-        .leftJoin("service.services", "services.id", `${T_ORDER_DETAILS}.service_id`)
-        .leftJoin("common.samsat", "samsat.id", `${T_ORDER_DETAILS}.samsat_id`)
-        .orderBy("id", "ASC");
+            raw(
+              `CONCAT(${T_ORDER_DETAILS}.plate_prefix, ' ', ${T_ORDER_DETAILS}.plate_number, ' ', ${T_ORDER_DETAILS}.plate_serial) as plate`
+            )
+          )
+          .leftJoin("service.services", "services.id", `${T_ORDER_DETAILS}.service_id`)
+          .leftJoin("common.samsat", "samsat.id", `${T_ORDER_DETAILS}.samsat_id`)
+          .orderBy("id", "ASC");
       },
       activeAddressOnly: (builder: QueryBuilder<transaction.OrderAddresses>) => {
         builder.orderBy("delivery_type", "ASC");
@@ -402,18 +417,17 @@ export class OrdersService {
     return ordersPage;
   }
 
-  async findOne(
-    id: string
-  ): Promise<Order> {
+  async findOne(id: string): Promise<Order> {
     const T_ORDERS = transaction.Orders.tableName;
-    let query = transaction.Orders.query().findById(id)
+    let query = transaction.Orders.query()
+      .findById(id)
       .select(
         `${T_ORDERS}.id`,
         `${T_ORDERS}.user_id`,
-        `users.name as user_name`,
-        `users.phone as user_phone`,
+        "users.name as user_name",
+        "users.phone as user_phone",
         `${T_ORDERS}.company_id`,
-        `companies.name as company_name`,
+        "companies.name as company_name",
         `${T_ORDERS}.order_status_id`,
         "order_status.name as order_status_name",
         "order_status.code as order_code",
@@ -428,14 +442,14 @@ export class OrdersService {
         `${T_ORDERS}.payment_type`,
         `${T_ORDERS}.created_at`,
         `${T_ORDERS}.email`,
-        `${T_ORDERS}.price`,
+        `${T_ORDERS}.price`
       )
       .leftJoin("company.companies", "companies.id", `${T_ORDERS}.company_id`)
       .leftJoin("user.users", "users.id", `${T_ORDERS}.user_id`)
       .leftJoin("common.order_status", "order_status.id", `${T_ORDERS}.order_status_id`)
       .where(`${T_ORDERS}.order_category`, "B2C")
       .whereNull(`${T_ORDERS}.deleted_at`);
-      
+
     const T_ORDER_DETAILS: string = transaction.OrderDetails.tableName;
     const T_ORDER_ADDRESS: string = transaction.OrderAddresses.tableName;
     const T_ORDER_NOTES: string = transaction.OrderNotes.tableName;
@@ -469,59 +483,65 @@ export class OrdersService {
 
     const modifiers = {
       orderDetails: (builder: QueryBuilder<transaction.OrderDetails>) => {
-        builder.select(
-          `${T_ORDER_DETAILS}.id`,
-          `${T_ORDER_DETAILS}.service_id`,
-          "services.name as service_name",
-          `${T_ORDER_DETAILS}.price`,
-          `${T_ORDER_DETAILS}.is_stnk_equals_ktp`,
-          `${T_ORDER_DETAILS}.is_stnk_equals_bpkb`,
-          `${T_ORDER_DETAILS}.is_same_location`,
-          `${T_ORDER_DETAILS}.name as user_name`,
-          `${T_ORDER_DETAILS}.samsat_id`,
-          `samsat.name as samsat_name`,
-          raw(`
+        builder
+          .select(
+            `${T_ORDER_DETAILS}.id`,
+            `${T_ORDER_DETAILS}.service_id`,
+            "services.name as service_name",
+            `${T_ORDER_DETAILS}.price`,
+            `${T_ORDER_DETAILS}.is_stnk_equals_ktp`,
+            `${T_ORDER_DETAILS}.is_stnk_equals_bpkb`,
+            `${T_ORDER_DETAILS}.is_same_location`,
+            `${T_ORDER_DETAILS}.name as user_name`,
+            `${T_ORDER_DETAILS}.samsat_id`,
+            "samsat.name as samsat_name",
+            raw(`
             CASE 
               WHEN samsat.latitude IS NOT NULL AND samsat.longitude IS NOT NULL 
               THEN CONCAT(samsat.latitude, ',', samsat.longitude)
               ELSE NULL
             END AS samsat_long_lat
           `),
-          raw(`CONCAT(${T_ORDER_DETAILS}.plate_prefix, ' ', ${T_ORDER_DETAILS}.plate_number, ' ', ${T_ORDER_DETAILS}.plate_serial) as plate`),
-        )
-        .leftJoin("service.services", "services.id", `${T_ORDER_DETAILS}.service_id`)
-        .leftJoin("common.samsat", "samsat.id", `${T_ORDER_DETAILS}.samsat_id`)
-        .orderBy("id", "ASC");
+            raw(
+              `CONCAT(${T_ORDER_DETAILS}.plate_prefix, ' ', ${T_ORDER_DETAILS}.plate_number, ' ', ${T_ORDER_DETAILS}.plate_serial) as plate`
+            )
+          )
+          .leftJoin("service.services", "services.id", `${T_ORDER_DETAILS}.service_id`)
+          .leftJoin("common.samsat", "samsat.id", `${T_ORDER_DETAILS}.samsat_id`)
+          .orderBy("id", "ASC");
       },
       orderDetailDocuments: (builder: QueryBuilder<transaction.OrderDetailDocuments>) => {
-        builder.select(
-          `${T_ORDER_DOCUMENTS}.id`,
-          `${T_ORDER_DOCUMENTS}.uploaded_by`,
-          `${T_ORDER_DOCUMENTS}.type`,
-          `${T_ORDER_DOCUMENTS}.document`,
-          `${T_ORDER_DOCUMENTS}.created_at`,
-        )
-        .orderBy(`${T_ORDER_DOCUMENTS}.created_at`, "DESC");
+        builder
+          .select(
+            `${T_ORDER_DOCUMENTS}.id`,
+            `${T_ORDER_DOCUMENTS}.uploaded_by`,
+            `${T_ORDER_DOCUMENTS}.type`,
+            `${T_ORDER_DOCUMENTS}.document`,
+            `${T_ORDER_DOCUMENTS}.created_at`
+          )
+          .orderBy(`${T_ORDER_DOCUMENTS}.created_at`, "DESC");
       },
       orderFormDatas: (builder: QueryBuilder<transaction.OrderFormDatas>) => {
-        builder.select(
-          `${T_ORDER_FORM_DATAS}.id`,
-          `${T_ORDER_FORM_DATAS}.form_token`,
-          `${T_ORDER_FORM_DATAS}.form_data`,
-          `${T_ORDER_FORM_DATAS}.created_at`,
-        )
-        .orderBy(`${T_ORDER_FORM_DATAS}.created_at`, "DESC");
+        builder
+          .select(
+            `${T_ORDER_FORM_DATAS}.id`,
+            `${T_ORDER_FORM_DATAS}.form_token`,
+            `${T_ORDER_FORM_DATAS}.form_data`,
+            `${T_ORDER_FORM_DATAS}.created_at`
+          )
+          .orderBy(`${T_ORDER_FORM_DATAS}.created_at`, "DESC");
       },
       orderFees: (builder: QueryBuilder<transaction.OrderDetailFees>) => {
-        builder.select(
-          `${T_ORDER_DETAIL_FEES}.id`,
-          `${T_ORDER_DETAIL_FEES}.fee_name`,
-          `${T_ORDER_DETAIL_FEES}.value`,
-          `${T_ORDER_DETAIL_FEES}.fee_group_name`,
-          `${T_ORDER_DETAIL_FEES}.order_fee_name`,
-          `${T_ORDER_DETAIL_FEES}.order_fee_group`,
-        )
-        .orderBy(`${T_ORDER_DETAIL_FEES}.order_fee_name`, "ASC");
+        builder
+          .select(
+            `${T_ORDER_DETAIL_FEES}.id`,
+            `${T_ORDER_DETAIL_FEES}.fee_name`,
+            `${T_ORDER_DETAIL_FEES}.value`,
+            `${T_ORDER_DETAIL_FEES}.fee_group_name`,
+            `${T_ORDER_DETAIL_FEES}.order_fee_name`,
+            `${T_ORDER_DETAIL_FEES}.order_fee_group`
+          )
+          .orderBy(`${T_ORDER_DETAIL_FEES}.order_fee_name`, "ASC");
       },
       orderAddresses: (builder: QueryBuilder<transaction.OrderAddresses>) => {
         builder.select(
@@ -535,24 +555,21 @@ export class OrdersService {
           `${T_ORDER_ADDRESS}.price`,
           `${T_ORDER_ADDRESS}.scheduled_date`,
           `${T_ORDER_ADDRESS}.status`,
-          `${T_ORDER_ADDRESS}.delivery_type`,
-        )
+          `${T_ORDER_ADDRESS}.delivery_type`
+        );
       },
       orderNotes: (builder: QueryBuilder<transaction.OrderNotes>) => {
-        builder.select(
-          `${T_ORDER_NOTES}.id`,
-          `${T_ORDER_NOTES}.note`,
-          `${T_ORDER_NOTES}.created_by`,
-          `${T_ORDER_NOTES}.created_at`,
-        )
-        .orderBy(`${T_ORDER_NOTES}.created_at`, "DESC");
+        builder
+          .select(
+            `${T_ORDER_NOTES}.id`,
+            `${T_ORDER_NOTES}.note`,
+            `${T_ORDER_NOTES}.created_by`,
+            `${T_ORDER_NOTES}.created_at`
+          )
+          .orderBy(`${T_ORDER_NOTES}.created_at`, "DESC");
       },
       selectCourier: (builder: QueryBuilder<transaction.OrderDetails>) => {
-        builder.select(
-          `${T_USERS}.id`,
-          `${T_USERS}.name`,
-          `${T_USERS}.phone`,
-        )
+        builder.select(`${T_USERS}.id`, `${T_USERS}.name`, `${T_USERS}.phone`);
       },
       selectPaymentInfo: (builder: QueryBuilder<transaction.Payments>) => {
         builder
@@ -574,55 +591,78 @@ export class OrdersService {
       query = query.withGraphFetched(eagerGraph).modifiers(modifiers);
     }
 
-    const result = await query as unknown as Order;
+    const result = (await query) as unknown as Order;
     if (!result) {
       throw new NotFoundError(`Order with ID ${id} not found`);
     }
 
-    const {orderAddresses, details, ...resResult} = result;
-  
+    const { orderAddresses, details, ...resResult } = result;
+    
+    //#region - Order Details
     const orderDetails = details.map((detailOrder) => {
-      const {fees: orderDetailFees, ...restOrderDetails} = detailOrder;
+      const { fees: orderDetailFees, ...restOrderDetails } = detailOrder;
+      //#region - Grouping Fees
       const feesArray: transaction.OrderDetailFees[] = Array.isArray(orderDetailFees)
         ? orderDetailFees
         : orderDetailFees
           ? [orderDetailFees]
           : [];
       const groupedFees = Object.values(
-        feesArray.reduce<Record<string, { group_name: string; order_group: number; items: transaction.OrderDetailFees[] }>>((acc, item) => {
-          const { fee_group_name: groupName, order_fee_group } = item;
+        feesArray.reduce<
+          Record<
+            string,
+            {
+              group_name: string;
+              order: number;
+              items: Fee[]
+            }
+          >
+        >((acc, item) => {
+          const { fee_group_name: groupName, order_fee_group: orderGroup } = item;
           if (groupName) {
             acc[groupName] = acc[groupName] || {
               group_name: groupName,
-              order_group: order_fee_group,
+              order: orderGroup,
               items: [],
             };
-            acc[groupName].items.push(item);
+            const {
+              fee_group_name,
+              order_fee_name,
+              order_fee_group,
+              ...restFee
+            } = item;
+            acc[groupName].items.push({
+              ...restFee,
+              order: Number(order_fee_name || "99"),
+              value: restFee.value ?? 0
+            });
           }
           return acc;
         }, {})
       )
-      .map(g => ({
-        ...g,
-        items: g.items.sort((a, b) => {
-          const aOrder = Number(a.order_fee_name) || 0;
-          const bOrder = Number(b.order_fee_name) || 0;
-          return aOrder - bOrder;
-        }),
-      }))
-      .sort((a, b) => a.order_group - b.order_group);
-      
+        .map((g) => ({
+          ...g,
+          items: g.items.sort((a, b) => {
+            const aOrder = Number(a.order) || 0;
+            const bOrder = Number(b.order) || 0;
+            return aOrder - bOrder;
+          }),
+        }))
+        .sort((a, b) => a.order - b.order);
+      //#endregion - Grouping Fees
+
       return {
         ...restOrderDetails,
         fees: groupedFees,
-      }
+      };
     });
+    //#endregion - Order Details
 
     const order = {
       ...resResult,
       orderDetails,
       address: orderAddresses
-        ? orderAddresses.map(({user, ...res}) => ({...res, courier: user}))
+        ? orderAddresses.map(({ user, ...res }) => ({ ...res, courier: user }))
         : [],
     };
 

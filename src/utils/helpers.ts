@@ -55,9 +55,6 @@ export const generateTokenString = (bytes = 32): string => {
   return crypto.randomBytes(bytes).toString("hex");
 };
 
-export const gmapsLink = (
-  longitude: number | null = 0,
-  latitude: number | null = 0
-): string => {
+export const gmapsLink = (longitude: number | null = 0, latitude: number | null = 0): string => {
   return `https://maps.google.com/?q=${latitude},${longitude}`;
 };

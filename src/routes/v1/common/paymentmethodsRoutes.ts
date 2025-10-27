@@ -6,11 +6,7 @@ import {
   updatePaymentMethod,
   deletePaymentMethod,
 } from "@controllers/common/paymentmethods";
-import {
-  validateQuery,
-  validateParams,
-  validateBody,
-} from "@middlewares/validationMiddleware";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
 import {
   findAllPaymentMethodsSchema,
   paymentMethodIdSchema,

@@ -79,7 +79,11 @@ export const findAllB2COrders = async (req: RequestWithUser, res: Response, next
   }
 };
 
-export const findAllB2CUnpaidOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findAllB2CUnpaidOrders = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const query = req.query as any;
     const options: any = {
@@ -108,7 +112,11 @@ export const findAllB2CUnpaidOrders = async (req: RequestWithUser, res: Response
   }
 };
 
-export const findAllB2CPaidOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findAllB2CPaidOrders = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const query = req.query as any;
     const options: any = {
@@ -137,7 +145,11 @@ export const findAllB2CPaidOrders = async (req: RequestWithUser, res: Response, 
   }
 };
 
-export const findAllB2CCompletedOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findAllB2CCompletedOrders = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const query = req.query as any;
     const options: any = {
@@ -157,7 +169,7 @@ export const findAllB2CCompletedOrders = async (req: RequestWithUser, res: Respo
       created_at_start: query.created_at_start,
       created_at_end: query.created_at_end,
       sort: query.sort,
-      isCompleted: true
+      isCompleted: true,
     };
     const data = await ordersService.findAllB2C(options);
     successListResponse(res, 200, data.results, data.total, options.limit, options.offset);

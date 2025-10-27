@@ -3,11 +3,7 @@ import {
   findAllServicesForDashboard,
   findServiceBySlug,
 } from "@controllers/service/servicesdashboard";
-import {
-  validateQuery,
-  validateParams,
-  validateBody,
-} from "@middlewares/validationMiddleware";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
 import {
   findAllServicesForDashboardSchema,
   serviceSlugSchema,

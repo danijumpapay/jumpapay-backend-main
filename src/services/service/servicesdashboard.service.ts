@@ -28,7 +28,7 @@ export class ServicesDashboard extends ServicesService {
         `${service.Services.tableName}.is_fixed_price`,
         `${service.Services.tableName}.is_location_required`,
         `${service.Services.tableName}.description`,
-        `${service.Services.tableName}.image`,
+        `${service.Services.tableName}.image`
       )
       .where(`${service.Services.tableName}.status`, "PUBLISH")
       .whereNull(`${service.Services.tableName}.deleted_at`);
@@ -43,13 +43,7 @@ export class ServicesDashboard extends ServicesService {
 
     if (sort) {
       const [column, direction] = sort.split(":");
-      const allowedSortColumns = [
-        "id",
-        "name",
-        "slug",
-        "price",
-        "created_at",
-      ];
+      const allowedSortColumns = ["id", "name", "slug", "price", "created_at"];
       const sortColumn = allowedSortColumns.includes(column)
         ? `${service.Services.tableName}.${column}`
         : `${service.Services.tableName}.name`;
@@ -82,7 +76,7 @@ export class ServicesDashboard extends ServicesService {
         `${service.Services.tableName}.is_fixed_price`,
         `${service.Services.tableName}.is_location_required`,
         `${service.Services.tableName}.description`,
-        `${service.Services.tableName}.image`,
+        `${service.Services.tableName}.image`
       )
       .findOne(`${service.Services.tableName}.slug`, slug)
       .where(`${service.Services.tableName}.status`, "PUBLISH")

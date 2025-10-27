@@ -6,11 +6,7 @@ import {
   updateService,
   deleteService,
 } from "@controllers/service/services";
-import {
-  validateQuery,
-  validateParams,
-  validateBody,
-} from "@middlewares/validationMiddleware";
+import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
 import {
   findAllServicesSchema,
   serviceIdSchema,
@@ -33,6 +29,5 @@ router.patch(
   updateService
 );
 router.delete("/:id", validateParams(serviceIdSchema), deleteService);
-
 
 export default router;
