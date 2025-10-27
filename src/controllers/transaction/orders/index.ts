@@ -206,17 +206,7 @@ export const findAllB2BOrders = async (req: RequestWithUser, res: Response, next
 export const findOrderById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
-    const query = req.query as any;
-    const relationOptions = {
-      withUser: query.withUser,
-      withCompany: query.withCompany,
-      withStatus: query.withStatus,
-      withDetails: query.withDetails,
-      withAddresses: query.withAddresses,
-      withNotes: query.withNotes,
-      withPayments: query.withPayments,
-    };
-    const data = await ordersService.findOne(id, relationOptions);
+    const data = await ordersService.findOne(id);
     successResponse(res, 200, data);
   } catch (error) {
     next(error);
@@ -230,7 +220,7 @@ export const createOrder = async (req: RequestWithUser, res: Response, next: Nex
     const newOrder = await ordersService.create(data, trx);
     await trx.commit();
 
-    const createdOrder = await ordersService.findOne(newOrder.id, { withStatus: true });
+    const createdOrder = await ordersService.findOne(newOrder.id);
     successResponse(res, 201, createdOrder, "Order created successfully");
   } catch (error) {
     await trx.rollback();

@@ -24,17 +24,17 @@ export const snakeToCamel = (str: string): string => {
 };
 
 export const convertKeysToCamel = <T>(data: T): T => {
-  // return data;
-  if (Array.isArray(data)) {
-    return data.map((item) => convertKeysToCamel(item)) as unknown as T;
-  } else if (data !== null && typeof data === "object") {
-    return Object.keys(data).reduce((acc, key) => {
-      const camelKey = snakeToCamel(key);
-      (acc as any)[camelKey] = convertKeysToCamel((data as any)[key]);
-      return acc;
-    }, {} as any) as T;
-  }
   return data;
+  // if (Array.isArray(data)) {
+  //   return data.map((item) => convertKeysToCamel(item)) as unknown as T;
+  // } else if (data !== null && typeof data === "object") {
+  //   return Object.keys(data).reduce((acc, key) => {
+  //     const camelKey = snakeToCamel(key);
+  //     (acc as any)[camelKey] = convertKeysToCamel((data as any)[key]);
+  //     return acc;
+  //   }, {} as any) as T;
+  // }
+  // return data;
 };
 
 export const uploadToS3 = async (file: Express.Multer.File) => {
