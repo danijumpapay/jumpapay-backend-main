@@ -178,6 +178,7 @@ export const findAllB2CCompletedOrders = async (
   }
 };
 
+// not finished yet
 export const findAllB2BOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const query = req.query as any;
@@ -215,7 +216,7 @@ export const findAllB2BOrders = async (req: RequestWithUser, res: Response, next
   }
 };
 
-export const findOrderById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const findB2COrderById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
     const data = await ordersService.findOne(id);
