@@ -1,6 +1,12 @@
 import { uploadMedia } from "@utils/objectStorage";
 import crypto from "crypto";
 
+interface PlateParts {
+  prefix: string;
+  number: string;
+  serial: string;
+};
+
 export const generateId = (name?: string): string => {
   const personName: string[] = (name || "Anonymous").split(" ");
   const prefixCode: string =
@@ -57,4 +63,16 @@ export const generateTokenString = (bytes = 32): string => {
 
 export const gmapsLink = (longitude: number | null = 0, latitude: number | null = 0): string => {
   return `https://maps.google.com/?q=${latitude},${longitude}`;
+};
+
+export const extractPlate = (plate: string): PlateParts | null => {
+  const normalized = plate.replace(/\s+/g, "");
+  const regex = /^([A-Z]+)(\d+)([A-Z]*)$/i;
+  const match = normalized.match(regex);
+  if (!match) return null;
+  return {
+    prefix: match[1].toUpperCase(),
+    number: match[2],
+    serial: match[3].toUpperCase(),
+  };
 };

@@ -1,11 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import ordersService from "@services/transaction/orders.service";
+import usersService from "@services/user/users.service";
+import vehiclesService from "@services/customer/vehicles.service";
+import OrderDetailsService from "@services/transaction/orderdetails.service";
+import OrderDetailDocumentsService from "@services/transaction/orderdetaildocuments.service";
 import { successResponse, successListResponse } from "@utils/response";
 import { Model } from "objection";
+import { generateId, extractPlate } from "@utils/helpers";
 
 interface RequestWithUser extends Request {
   user?: any;
 }
+
+type DocumentTypeValue = "STNK" | "BPKB" | "SKPD" | "KTP" | "OTHERS";
 
 export const findAllOrders = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   try {
@@ -229,10 +236,92 @@ export const findB2COrderById = async (req: RequestWithUser, res: Response, next
 export const createOrder = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   const trx = await Model.startTransaction();
   try {
-    const data = req.body;
-    const newOrder = await ordersService.create(data, trx);
-    await trx.commit();
+    const orderId = generateId("dashboard");
+    const bookingId = generateId("B");
+    const { name, vehicle_type_id, plate, ...orderDataBody } = req.body;
+    const uploadedFiles: any = req.files || {};
+    
+    const dataUser = {
+      id: generateId("user_dashboard"),
+      name: name,
+      role: "CUSTOMER" as const, 
+      phone: req.body.phone,
+      is_active: true,
+    };
+    
+    const newUser = await usersService.create(dataUser, trx);
+    const plates = extractPlate(req.body.plate || "");
 
+    const dataVehicle = {
+          id: generateId("V"),
+          user_id: newUser.id,
+          vehicle_type_id: vehicle_type_id,
+          plate_id: 1,
+          plate_number: plates?.number,
+          plate_serial: plates?.serial,
+    };
+
+    const newVehicle = await vehiclesService.create(dataVehicle, trx);
+
+    const dataOrder = {
+      ...orderDataBody,
+      id: orderId,
+      user_id: newUser.id,
+      order_status_id: 1,
+      order_position: "VERIFICATION",
+      booking_id: bookingId
+    };
+
+    const newOrder = await ordersService.create(dataOrder, trx);
+  
+    const dataOrderDetail = {
+      id: generateId("OD"),
+      order_id: newOrder.id,
+      service_id: 2,
+      vehicle_id: newVehicle.id,
+      price: req.body.price,
+      is_stnk_equals_ktp: true,
+      is_stnk_equals_bpkb: true,
+      is_same_location: true,
+      name: name,
+      plate_prefix: plates?.prefix,
+      plate_number: plates?.number,
+      plate_serial: plates?.serial,
+    };
+    
+    await OrderDetailsService.create(dataOrderDetail, trx);
+    const orderDetailId = dataOrderDetail.id;
+    const userId = newUser.id;
+
+    const documentTypesMap = {
+      ktpFile: "KTP" as DocumentTypeValue,   
+      stnkFile: "STNK" as DocumentTypeValue,
+      bpkbFile: "BPKB" as DocumentTypeValue,
+      skpdFile: "SKPD" as DocumentTypeValue,
+    };
+
+    const documentPromises: Promise<any>[] = [];
+
+    for (const [fieldName, docType] of Object.entries(documentTypesMap)) {
+        const file = uploadedFiles[fieldName]; 
+        
+        if (file && Array.isArray(file) && file[0]) {
+            const fileData = file[0] as Express.MulterS3.File;
+            const documentLocation = fileData.location; 
+            
+            const documentData = {
+                order_detail_id: orderDetailId,
+                uploaded_by: userId,
+                type: docType,
+                document: documentLocation,
+            };
+            
+            documentPromises.push(OrderDetailDocumentsService.create(documentData, trx));
+        }
+    }
+
+    await Promise.all(documentPromises);
+    await trx.commit();
     const createdOrder = await ordersService.findOne(newOrder.id);
     successResponse(res, 201, createdOrder, "Order created successfully");
   } catch (error) {

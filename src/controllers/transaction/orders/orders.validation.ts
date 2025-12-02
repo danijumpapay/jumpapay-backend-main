@@ -65,14 +65,16 @@ export const orderIdSchema = Joi.object({
 });
 
 export const createOrderSchema = Joi.object({
-  user_id: Joi.string().max(200).allow(null).label("User ID"),
+  // user_id: Joi.string().max(200).allow(null).label("User ID"),
+  name: Joi.string().max(200).required().label("Customer Name"),
   company_id: Joi.string().max(200).allow(null).label("Company ID"),
-  order_status_id: Joi.number().integer().required().label("Initial Order Status ID"),
+  // order_status_id: Joi.number().integer().required().label("Initial Order Status ID"),
   email: Joi.string().email().allow(null, "").label("Customer Email"),
   phone: Joi.string().max(30).allow(null, "").label("Customer Phone"),
   city_id: Joi.number().integer().allow(null).label("City ID"),
   source: Joi.string().max(100).allow(null, "").label("Order Source"),
-
+  plate: Joi.string().max(100).allow(null, "").label("Plate Number"),
+  vehicle_type_id: Joi.number().max(100).allow(null, "").label("Vehicle Type ID"),
   price: Joi.number().precision(2).positive().allow(0).label("Total Price (calculated?)"),
   order_type: Joi.string()
     .valid(...orderTypes)
@@ -83,7 +85,7 @@ export const createOrderSchema = Joi.object({
     .allow(null)
     .label("Order Position"),
   payment_type: Joi.string().max(200).allow(null, "").label("Payment Type"),
-}).or("user_id", "company_id");
+});
 
 export const updateOrderSchema = Joi.object({
   user_id: Joi.string().max(200).allow(null),

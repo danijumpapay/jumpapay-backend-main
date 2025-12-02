@@ -4,3 +4,13 @@
 /temp
 .env
 .htaccess
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

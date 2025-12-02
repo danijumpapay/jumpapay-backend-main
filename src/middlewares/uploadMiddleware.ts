@@ -84,11 +84,36 @@ const documentFileFilter = (
   }
 };
 
+const orderDocumentFileFilter = (
+  req: Request,
+  file: Express.Multer.File,
+  cb: multer.FileFilterCallback
+) => {
+  const allowedMimes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (blockedExtensions.includes(ext)) {
+    return cb(new BadRequestError(`Validation error: Files of type ${ext} are not allowed`));
+  }
+
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new BadRequestError("Validation error: Only images (JPEG/PNG), PDF, or Word documents are allowed."));
+  }
+};
+
 const PATHS = {
-  avatars: "uploads/avatars/",
-  documents: "uploads/documents/",
-  evidence: "uploads/evidence/",
-  vehicleImages: "uploads/vehicles/",
+  avatars: "avatar/",
+  documents: "orders/documents/",
+  evidence: "orders/evidence/",
+  vehicleImages: "vehicles/",
 };
 
 const createS3Storage = (options: {
@@ -151,3 +176,44 @@ export const uploadMultipleEvidenceFiles = createS3Storage({
   fileFilter: imageFileFilter,
   fileSize: 1024 * 1024 * 5,
 }).array("files", 3);
+
+export const uploadS3OrderFiles = createS3Storage({
+  path: PATHS.documents,
+  fileFilter: orderDocumentFileFilter,
+  fileSize: 1024 * 1024 * 10,
+}).fields([
+  { name: 'ktpFile', maxCount: 1 },
+  { name: 'stnkFile', maxCount: 1 },
+  { name: 'bpkbFile', maxCount: 1 },
+  { name: 'skpdFile', maxCount: 1 },
+]);
+
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadFolder);
+  },
+  filename: (req, file, cb) => {
+    const fileExt = path.extname(file.originalname);
+    const uniqueId = uuidv4();
+    cb(null, `${uniqueId}${fileExt}`);
+  },
+});
+
+export const uploadLocalDisk = multer({
+  storage: diskStorage,
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (blockedExtensions.includes(ext)) {
+      return cb(new Error(`Files of type ${ext} are not allowed`));
+    }
+    cb(null, true);
+  },
+});
+
+export const uploadLocalOrderFiles = uploadLocalDisk.fields([
+  { name: 'ktpFile', maxCount: 1 },
+  { name: 'stnkFile', maxCount: 1 },
+  { name: 'bpkbFile', maxCount: 1 },
+  { name: 'skpdFile', maxCount: 1 },
+]);

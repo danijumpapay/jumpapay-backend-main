@@ -17,7 +17,7 @@ import ordernotesRoutes from "./ordernotesRoutes";
 import courierevidencesRoutes from "./courierevidencesRoutes";
 import b2cordersRoutes from "./b2cordersRoutes";
 import b2bordersRoutes from "./b2bordersRoutes";
-
+import { uploadS3OrderFiles } from "@src/middlewares/uploadMiddleware";
 const router = Router();
 
 router.use("/b2c", b2cordersRoutes);
@@ -25,7 +25,7 @@ router.use("/b2b", b2bordersRoutes);
 
 router.get("/", validateQuery(findAllOrdersSchema), findAllOrders);
 router.get("/:id", validateParams(orderIdSchema), findB2COrderById);
-router.post("/", validateBody(createOrderSchema), createOrder);
+router.post("/", uploadS3OrderFiles, validateBody(createOrderSchema), createOrder);
 router.patch("/:id", validateParams(orderIdSchema), validateBody(updateOrderSchema), updateOrder);
 router.delete("/:id", validateParams(orderIdSchema), deleteOrder);
 
