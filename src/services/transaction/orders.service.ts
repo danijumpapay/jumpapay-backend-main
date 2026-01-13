@@ -433,6 +433,7 @@ export class OrdersService {
         "order_status.code as order_code",
         `${T_ORDERS}.order_category`,
         `${T_ORDERS}.order_type`,
+        `${T_ORDERS}.pickup_date`,
         `${T_ORDERS}.order_position`,
         `${T_ORDERS}.booking_id`,
         `${T_ORDERS}.phone`,
@@ -445,6 +446,8 @@ export class OrdersService {
         `${T_ORDERS}.price`
       )
       .leftJoin("company.companies", "companies.id", `${T_ORDERS}.company_id`)
+      // .leftJoin("transaction.payment_items", "payment_items.order_id", `${T_ORDERS}.id`)
+      // .leftJoin("transaction.payments", "payments.id", `payment_items.payment_id`)
       .leftJoin("user.users", "users.id", `${T_ORDERS}.user_id`)
       .leftJoin("common.order_status", "order_status.id", `${T_ORDERS}.order_status_id`)
       .where(`${T_ORDERS}.order_category`, "B2C")
@@ -456,6 +459,9 @@ export class OrdersService {
     const T_ORDER_DOCUMENTS: string = transaction.OrderDetailDocuments.tableName;
     const T_ORDER_FORM_DATAS: string = transaction.OrderFormDatas.tableName;
     const T_ORDER_DETAIL_FEES: string = transaction.OrderDetailFees.tableName;
+    const T_PAYMENT_ITEMS: string = transaction.PaymentItems.tableName;
+    const T_PAYMENTS: string = transaction.Payments.tableName;
+    const T_ORDER_VOUCHERS: string = transaction.OrderVouchers.tableName;
     const T_USERS: string = user.Users.tableName;
     const eagerGraph: Record<string, any> = {};
 
@@ -479,6 +485,12 @@ export class OrdersService {
     };
     eagerGraph.notes = {
       $modify: ["orderNotes"],
+    };
+    eagerGraph.paymentItems = {
+      $modify: ["orderPaymentItems"],
+    };
+    eagerGraph.orderVouchers = {
+      $modify: ["orderVouchers"],
     };
 
     const modifiers = {
@@ -567,6 +579,36 @@ export class OrdersService {
             `${T_ORDER_NOTES}.created_at`
           )
           .orderBy(`${T_ORDER_NOTES}.created_at`, "DESC");
+      },
+      orderPaymentItems: (builder: QueryBuilder<transaction.Payments>) => {
+        builder
+          .select(
+            `${T_PAYMENTS}.id`,
+            `${T_PAYMENTS}.company_id`,
+            `${T_PAYMENTS}.payment_gateway_ref`,
+            `${T_PAYMENTS}.invoice_number`,
+            `${T_PAYMENTS}.amount`,
+            `${T_PAYMENTS}.payment_method_name`,
+            `${T_PAYMENTS}.payment_method_type`,
+            `${T_PAYMENTS}.status`,
+            `${T_PAYMENTS}.paid_at`,
+            `${T_PAYMENTS}.payment_details`,
+            `${T_PAYMENTS}.created_at`,
+          )
+          .leftJoin("transaction.payments", "payments.id", `${T_PAYMENT_ITEMS}.payment_id`)
+          .orderBy(`${T_PAYMENTS}.created_at`, "DESC");
+      },
+      orderVouchers: (builder: QueryBuilder<transaction.OrderVouchers & {code: string}>) => {
+        builder
+          .select(
+            `${T_ORDER_VOUCHERS}.id`,
+            `vouchers.code`,
+            `${T_ORDER_VOUCHERS}.applied_target_type`,
+            `${T_ORDER_VOUCHERS}.applied_discount_amount`,
+            `${T_ORDER_VOUCHERS}.created_at`
+          )
+          .leftJoin(`common.vouchers`, "vouchers.id", `${T_ORDER_VOUCHERS}.voucher_id`)
+          .orderBy(`${T_ORDER_VOUCHERS}.created_at`, "DESC");
       },
       selectCourier: (builder: QueryBuilder<transaction.OrderDetails>) => {
         builder.select(`${T_USERS}.id`, `${T_USERS}.name`, `${T_USERS}.phone`);
@@ -658,11 +700,16 @@ export class OrdersService {
     });
     //#endregion - Order Details
 
+    const orderAddressesModified = orderAddresses as unknown as transaction.OrderAddresses & {user: any[]}[];
     const order = {
       ...resResult,
       orderDetails,
-      address: orderAddresses
-        ? orderAddresses.map(({ user, ...res }) => ({ ...res, courier: user }))
+      address: orderAddressesModified
+        ? orderAddressesModified.map(({ user, ...res }) => ({
+          ...res,
+          maps_link: (res as any)?.longitude && (res as any)?.latitude ? gmapsLink((res as any).longitude, (res as any).latitude) : null,
+          courier: user
+        }))
         : [],
     };
 

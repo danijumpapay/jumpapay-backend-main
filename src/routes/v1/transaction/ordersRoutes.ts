@@ -26,6 +26,7 @@ router.use("/b2b", b2bordersRoutes);
 router.get("/", validateQuery(findAllOrdersSchema), findAllOrders);
 router.get("/:id", validateParams(orderIdSchema), findB2COrderById);
 router.post("/", uploadS3OrderFiles, validateBody(createOrderSchema), createOrder);
+router.patch("/update-status/:id", validateParams(orderIdSchema), validateBody(updateOrderSchema), updateOrder);
 router.patch("/:id", validateParams(orderIdSchema), validateBody(updateOrderSchema), updateOrder);
 router.delete("/:id", validateParams(orderIdSchema), deleteOrder);
 

@@ -356,3 +356,7 @@ export const deleteOrder = async (req: RequestWithUser, res: Response, next: Nex
     next(error);
   }
 };
+
+export const updateStatus = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+
+};
