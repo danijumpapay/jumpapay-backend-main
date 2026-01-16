@@ -32,7 +32,7 @@
     "@aws-sdk/lib-storage": "^3.914.0",
     "@elastic/elasticsearch": "^8.19.0",
     "@hapi/joi": "^17.1.1",
-    "@jumpapay/jumpapay-models": "^7.0.0",
+    "@jumpapay/jumpapay-models": "^7.0.1",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",

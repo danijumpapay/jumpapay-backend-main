@@ -1,23 +1,21 @@
 IMAGE_NAME=jumpapay-backend-main
-CONTAINER_NAME=jumpapay-backend-main
-ENV_FILE=/opt/.env/production-jumpapay-backend-main.env
+SERVICE_NAME=jumpapay-backend-main
 
 build:
 	@echo "▶ Building image..."
 	@podman build --no-cache \
-	  --secret id=github_token,env=GITHUB_TOKEN \
-	  -t $(IMAGE_NAME) .
+		--secret id=github_token,env=GITHUB_TOKEN \
+		-t $(IMAGE_NAME):latest .
 
-run:
-	@echo "▶ Running container..."
-	@podman run -d \
-	  --name $(CONTAINER_NAME) \
-	  --replace \
-	  --restart=always \
-		--network=host \
-	  --env-file $(ENV_FILE) \
-	  --log-driver=journald \
-	  $(IMAGE_NAME)
-
-deploy: build run
+deploy: build
+	@echo "▶ Reloading systemd and restarting service..."
+	@sudo systemctl daemon-reload
+	@sudo systemctl enable $(SERVICE_NAME).service
+	@sudo systemctl restart $(SERVICE_NAME).service
 	@echo "✅ Deploy finished!"
+
+status:
+	sudo systemctl status $(SERVICE_NAME).service
+
+logs:
+	sudo journalctl -u $(SERVICE_NAME).service -f

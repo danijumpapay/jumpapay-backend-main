@@ -21,8 +21,8 @@ importers:
         specifier: ^17.1.1
         version: 17.1.1
       '@jumpapay/jumpapay-models':
-        specifier: ^7.0.0
-        version: 7.0.0(pg@8.16.3)
+        specifier: ^7.0.1
+        version: 7.0.1(pg@8.16.3)
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -409,8 +409,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@jumpapay/jumpapay-models@7.0.0':
-    resolution: {integrity: sha512-+Xi4NbvARvFG9q1RBwhUfSIJN6HcXO8tH6ZiP2Bz85/FsuZewl97WWQJ+sinbizqibivqd87+MJfuUsq9bqzog==, tarball: https://npm.pkg.github.com/download/@jumpapay/jumpapay-models/7.0.0/311ff37de3ff5f49fdbbc68356b3f2cfa540871a}
+  '@jumpapay/jumpapay-models@7.0.1':
+    resolution: {integrity: sha512-sgT8H6X4d5Xs7140qi/DKEuHQKOPmeokiPzZLx7r4cp3c/1IK4EU7NDBqvLC3R/dQ5u2heJDFgFnxxD26kfj2Q==, tarball: https://npm.pkg.github.com/download/@jumpapay/jumpapay-models/7.0.1/0be6e8c6588e965f5bfeb3b202c642e03f0aa440}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2915,7 +2915,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@jumpapay/jumpapay-models@7.0.0(pg@8.16.3)':
+  '@jumpapay/jumpapay-models@7.0.1(pg@8.16.3)':
     dependencies:
       knex: 3.1.0(pg@8.16.3)
       objection: 3.1.4(knex@3.1.0(pg@8.16.3))
