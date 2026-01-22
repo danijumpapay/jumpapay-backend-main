@@ -19,6 +19,7 @@ import messagesRoutes from "@routes/v1/messages";
 import messageRoutes from "@routes/v1/message";
 import merchantsRoutes from "@routes/v1/merchants";
 import authRoutes from "./auth";
+import ssoRoutes from "./sso";
 
 //#region - Schema Common
 import citiesRoutes from "./common/citiesRoutes";
@@ -59,6 +60,7 @@ import paymentitemsRoutes from "./transaction/paymentitemsRoutes";
 
 const router = Router();
 
+router.use("/sso", ssoRoutes);
 router.use("/auth", authRoutes);
 
 //#region - common

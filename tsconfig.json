@@ -46,6 +46,9 @@
       "@services/*": [
         "src/services/*"
       ],
+      "@cache/*": [
+        "src/cache/*"
+      ],
     },
     "types": [
       "node", "multer"

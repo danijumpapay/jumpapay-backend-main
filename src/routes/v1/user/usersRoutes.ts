@@ -5,6 +5,7 @@ import {
   createData,
   updateData,
   deleteData,
+  getProfile,
 } from "@controllers/user/users/index";
 import { usersSchema } from "@controllers/user/users/users.validation";
 import authMiddleware from "@middlewares/authMiddleware";
@@ -12,6 +13,7 @@ import authMiddleware from "@middlewares/authMiddleware";
 const router = Router();
 
 router.get("/", authMiddleware, listData);
+router.get("/my-profile", authMiddleware, getProfile);
 router.get("/:id", authMiddleware, detailData);
 router.post("/", authMiddleware, usersSchema, createData);
 router.put("/:id", authMiddleware, usersSchema, updateData);
