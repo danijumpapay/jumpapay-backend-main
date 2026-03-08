@@ -50,18 +50,11 @@
         "src/cache/*"
       ],
     },
-    "types": [
-      "node", "multer"
-    ],
     "typeRoots": [
       "./src/types",
       "./node_modules/@types"
     ],
   },
-  "types": [
-    "node",
-    "objection"
-  ],
   "exclude": [
     "node_modules",
     "dist"
