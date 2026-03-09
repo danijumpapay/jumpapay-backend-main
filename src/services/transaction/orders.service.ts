@@ -1,7 +1,7 @@
 import { transaction, common, user, company, service } from "@jumpapay/jumpapay-models";
 import { NotFoundError, BadRequestError } from "@utils/errors";
 import { ModelObject, Page, QueryBuilder, raw, Transaction } from "objection";
-import { gmapsLink } from "@utils/helpers";
+import { gmapsLink, formatDate, formatCurrency } from "@utils/helpers";
 
 type OrderTypeValue = "INVOICING" | "NON INVOICING";
 type OrderPositionValue = "VERIFICATION" | "SHOPPING BAG" | "LIVE ORDER" | "FINAL";
@@ -74,6 +74,7 @@ interface Courier {
 interface OrderDetail extends ModelObject<transaction.OrderDetails> {
   service_name: string;
   samsat_name: string;
+  plate: string;
   documents: transaction.OrderDetailDocuments;
   formDatas: transaction.OrderFormDatas;
   fees: transaction.OrderDetailFees;
@@ -85,20 +86,14 @@ interface Order extends ModelObject<transaction.Orders> {
   company_name: string;
   order_status_name: string;
   order_code: string;
-  details: transaction.OrderDetails &
-    {
-      service_name: string;
-      samsat_name: string;
-      documents: transaction.OrderDetailDocuments;
-      formDatas: transaction.OrderFormDatas;
-      fees: transaction.OrderDetailFees;
-    }[];
-  orderAddresses?: transaction.OrderAddresses &
-    {
-      user?: Courier;
-      courier?: Courier;
-    }[];
+  details: OrderDetail[];
+  orderAddresses?: (transaction.OrderAddresses & {
+    user?: Courier;
+    courier?: Courier;
+  })[];
   notes: transaction.OrderNotes;
+  payments: transaction.Payments[];
+  orderVouchers: (transaction.OrderVouchers & { code: string })[];
 }
 
 interface GroupedFee {
@@ -638,60 +633,42 @@ export class OrdersService {
       throw new NotFoundError(`Order with ID ${id} not found`);
     }
 
-    const { orderAddresses, details, ...resResult } = result;
+    const resultJson = (result as any).toJSON ? (result as any).toJSON() : result;
+    const { orderAddresses, details, ...resResult } = resultJson;
     
+    const detailsArray = Array.isArray(details) ? details : (details ? [details] : []);
+    const orderAddressesArray = Array.isArray(orderAddresses) ? orderAddresses : (orderAddresses ? [orderAddresses] : []);
+
     //#region - Order Details
-    const orderDetails = details.map((detailOrder) => {
+    const processedOrderDetails = detailsArray.map((detailOrder: any) => {
       const { fees: orderDetailFees, ...restOrderDetails } = detailOrder;
-      //#region - Grouping Fees
-      const feesArray: transaction.OrderDetailFees[] = Array.isArray(orderDetailFees)
-        ? orderDetailFees
-        : orderDetailFees
-          ? [orderDetailFees]
-          : [];
+      const feesArray = Array.isArray(orderDetailFees) ? orderDetailFees : (orderDetailFees ? [orderDetailFees] : []);
+      
       const groupedFees = Object.values(
-        feesArray.reduce<
-          Record<
-            string,
-            {
-              group_name: string;
-              order: number;
-              items: Fee[]
-            }
-          >
-        >((acc, item) => {
-          const { fee_group_name: groupName, order_fee_group: orderGroup } = item;
+        feesArray.reduce<Record<string, any>>((acc, item) => {
+          const groupName = item.fee_group_name || item.feeGroupName;
+          const orderGroup = item.order_fee_group || item.orderFeeGroup;
+          
           if (groupName) {
             acc[groupName] = acc[groupName] || {
               group_name: groupName,
               order: orderGroup,
               items: [],
             };
-            const {
-              fee_group_name,
-              order_fee_name,
-              order_fee_group,
-              ...restFee
-            } = item;
             acc[groupName].items.push({
-              ...restFee,
-              order: Number(order_fee_name || "99"),
-              value: restFee.value ?? 0
+              ...item,
+              order: Number(item.order_fee_name || item.orderFeeName || "99"),
+              value: item.value ?? 0
             });
           }
           return acc;
         }, {})
       )
-        .map((g) => ({
-          ...g,
-          items: g.items.sort((a, b) => {
-            const aOrder = Number(a.order) || 0;
-            const bOrder = Number(b.order) || 0;
-            return aOrder - bOrder;
-          }),
-        }))
-        .sort((a, b) => a.order - b.order);
-      //#endregion - Grouping Fees
+      .map((g: any) => ({
+        ...g,
+        items: g.items.sort((a: any, b: any) => (Number(a.order) || 0) - (Number(b.order) || 0)),
+      }))
+      .sort((a: any, b: any) => (Number(a.order) || 0) - (Number(b.order) || 0));
 
       return {
         ...restOrderDetails,
@@ -700,18 +677,122 @@ export class OrdersService {
     });
     //#endregion - Order Details
 
-    const orderAddressesModified = orderAddresses as unknown as transaction.OrderAddresses & {user: any[]}[];
+    const orderAddressesModified = orderAddressesArray.map((addr: any) => ({
+      ...addr,
+      maps_link: (addr.longitude && addr.latitude) ? gmapsLink(Number(addr.longitude), Number(addr.latitude)) : null,
+      courier: addr.user
+    }));
+
     const order = {
       ...resResult,
-      orderDetails,
-      address: orderAddressesModified
-        ? orderAddressesModified.map(({ user, ...res }) => ({
-          ...res,
-          maps_link: (res as any)?.longitude && (res as any)?.latitude ? gmapsLink((res as any).longitude, (res as any).latitude) : null,
-          courier: user
-        }))
-        : [],
+      id: resResult.id,
+      tanggal: formatDate(resResult.created_at || resResult.createdAt || new Date()),
+      nama: resResult.user_name || resResult.userName || "-",
+      name: resResult.user_name || resResult.userName || "-",
+      layanan: processedOrderDetails?.[0]?.service_name || processedOrderDetails?.[0]?.serviceName || "-",
+      no_hp: resResult.phone || resResult.userPhone || "-",
+      kota: orderAddressesModified?.[0]?.city_name || orderAddressesModified?.[0]?.cityName || "-",
+      platform: resResult.source || "-",
+      harga: formatCurrency(Number(resResult.price || 0)),
+      status_pembayaran: (resResult.paid_at || resResult.paidAt) ? "Sudah Bayar" : "Belum Bayar",
+      payments: (resResult.payments || resultJson.paymentItems || []).map((p: any) => ({
+        id: p.id,
+        paymentGatewayRef: p.payment_gateway_ref || p.paymentGatewayRef,
+        invoiceNumber: p.invoice_number || p.invoiceNumber,
+        paymentMethodName: p.payment_method_name || p.paymentMethodName,
+        paymentMethodType: p.payment_method_type || p.paymentMethodType,
+        status: p.status,
+        paidAt: p.paid_at || p.paidAt,
+        amount: p.amount,
+        paymentDetails: p.payment_details || p.paymentDetails
+      })),
+      address: orderAddressesModified,
+      orderDetails: processedOrderDetails
     };
+
+    //#region - Detail Object For Dashboard Compatibility
+    if (processedOrderDetails.length > 0) {
+      const firstDetail = processedOrderDetails[0];
+      const formDataObj = (Array.isArray(firstDetail.formDatas) ? firstDetail.formDatas[0] : firstDetail.formDatas) as any;
+      const formData = formDataObj?.form_data || formDataObj?.formData || {};
+      
+      const swdPokok = Number(formData.swd_pokok || formData.swdPokok || 0);
+      let derivedVehicleType = "-";
+      if (swdPokok === 35000) derivedVehicleType = "MOTOR";
+      else if (swdPokok === 143000) derivedVehicleType = "MOBIL";
+
+      const pajakItems: any[] = [];
+      const jasaItems: any[] = [];
+      let subTotalPajak = 0;
+      let subTotalJasa = 0;
+
+      // Use the grouped fees to build items
+      (firstDetail.fees as any[] || []).forEach(group => {
+        const groupName = (group.group_name || "").toLowerCase();
+        group.items.forEach((item: any) => {
+          const feeName = item.fee_name || item.order_fee_name || item.orderFeeName || "Biaya";
+          const feeValue = Number(item.value || 0);
+          const feeItem = { label: feeName, value: formatCurrency(feeValue) };
+          
+          if (groupName.includes("pajak")) {
+            pajakItems.push(feeItem);
+            subTotalPajak += feeValue;
+          } else {
+            jasaItems.push(feeItem);
+            subTotalJasa += feeValue;
+          }
+        });
+      });
+
+      (order as any).detail = {
+        metode_pembayaran: resResult.payment_type || resResult.paymentType || "-",
+        nomor_customer: resResult.user_phone || resResult.userPhone || resResult.phone || "-",
+        kode_voucher: (Array.isArray(result.orderVouchers) && result.orderVouchers.length > 0) 
+          ? (result.orderVouchers[0] as any).code 
+          : "-",
+        alamat_penjemputan: {
+          kota: orderAddressesModified?.[0]?.city_name || orderAddressesModified?.[0]?.cityName || "-",
+          detail: orderAddressesModified?.[0]?.raw_address || orderAddressesModified?.[0]?.rawAddress || "-",
+          maps: (orderAddressesModified?.[0]?.latitude && orderAddressesModified?.[0]?.longitude)
+            ? gmapsLink(Number(orderAddressesModified[0].longitude), Number(orderAddressesModified[0].latitude))
+            : "-",
+        },
+        status_detail: {
+          status: resResult.order_status_name || resResult.orderStatusName,
+          status_pembayaran_detail: (resResult.paid_at || resResult.paidAt) ? "SUDAH DIBAYAR" : "MENUNGGU PEMBAYARAN",
+          kurir: orderAddressesModified?.[0]?.user?.name || orderAddressesModified?.[0]?.courier?.name || "-",
+          serah_terima_dokumen: "DIBERIKAN",
+        },
+        perpanjangan_pajak: {
+          jenis_kendaraan: derivedVehicleType,
+          nomor_plat: firstDetail.plate || firstDetail.plateNumber || "-",
+          pkb_terakhir: formatCurrency(Number(formData.pkb_tertagih || formData.pkbTertagih || 0)),
+          masa_berlaku_pkb: formData.masa_berlaku_pajak || formData.masaBerlakuPajak || "-",
+          total_harga: formatCurrency(Number(resResult.price || 0)),
+          biaya_jasa: formatCurrency(Number(firstDetail.price || 0)),
+        },
+        form_data: formDataObj ? {
+          id: formDataObj.id,
+          form_token: formDataObj.form_token || formDataObj.formToken,
+          form_data: formData
+        } : null,
+        dokumen_order: (() => {
+          const docs = firstDetail.documents || firstDetail.orderDetailDocuments;
+          const docsArray = Array.isArray(docs) ? docs : (docs ? [docs] : []);
+          return docsArray.map((d: any) => ({
+            label: d.type || "Dokumen",
+            url: d.document
+          }));
+        })(),
+        rincian_pembayaran: {
+          biaya_pajak: pajakItems,
+          sub_total_biaya_pajak: formatCurrency(subTotalPajak),
+          biaya_jasa_jumpapay: jasaItems,
+          sub_total_biaya_jasa_jumpapay: formatCurrency(subTotalJasa),
+        }
+      };
+    }
+    //#endregion
 
     return order as unknown as Order;
   }

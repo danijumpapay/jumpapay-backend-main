@@ -76,3 +76,19 @@ export const extractPlate = (plate: string): PlateParts | null => {
     serial: match[3].toUpperCase(),
   };
 };
+
+export const formatCurrency = (amount: number): string =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+
+export const formatDate = (dateInput: string | Date): string => {
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
