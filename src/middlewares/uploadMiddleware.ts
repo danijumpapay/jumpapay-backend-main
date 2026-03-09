@@ -8,10 +8,10 @@ import { Request } from "express";
 import { BadRequestError } from "@utils/errors";
 import bucketS3 from "@root/objectStorage";
 
-const uploadFolder = path.join(__dirname, "../../uploads");
+const uploadFolder = "/tmp/uploads";
 
 if (!fs.existsSync(uploadFolder)) {
-  fs.mkdirSync(uploadFolder);
+  fs.mkdirSync(uploadFolder, { recursive: true });
 }
 
 const blockedExtensions = [
