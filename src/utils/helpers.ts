@@ -92,3 +92,13 @@ export const formatDate = (dateInput: string | Date): string => {
     year: "numeric",
   });
 };
+
+export const getVehicleType = (swdValue: number): string => {
+  if (swdValue === 35000 || swdValue === 83000) {
+    return "MOTOR";
+  } else if (swdValue === 143000) {
+    return "MOBIL";
+  } else {
+    return "TRUK";
+  }
+};

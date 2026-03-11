@@ -1,7 +1,7 @@
 import { transaction, common, user, company, service } from "@jumpapay/jumpapay-models";
 import { NotFoundError, BadRequestError } from "@utils/errors";
 import { ModelObject, Page, QueryBuilder, raw, Transaction } from "objection";
-import { gmapsLink, formatDate, formatCurrency } from "@utils/helpers";
+import { gmapsLink, formatDate, formatCurrency, getVehicleType } from "@utils/helpers";
 
 type OrderTypeValue = "INVOICING" | "NON INVOICING";
 type OrderPositionValue = "VERIFICATION" | "SHOPPING BAG" | "LIVE ORDER" | "FINAL";
@@ -717,9 +717,7 @@ export class OrdersService {
       const formData = formDataObj?.form_data || formDataObj?.formData || {};
       
       const swdPokok = Number(formData.swd_pokok || formData.swdPokok || 0);
-      let derivedVehicleType = "-";
-      if (swdPokok === 35000) derivedVehicleType = "MOTOR";
-      else if (swdPokok === 143000) derivedVehicleType = "MOBIL";
+      const derivedVehicleType = getVehicleType(swdPokok) || formData.jenis_kendaraan || formData.jenisKendaraan || "-";
 
       const pajakItems: any[] = [];
       const jasaItems: any[] = [];
