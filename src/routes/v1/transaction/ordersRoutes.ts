@@ -5,6 +5,7 @@ import {
   createOrder,
   updateOrder,
   deleteOrder,
+  updateStatus,
 } from "@controllers/transaction/orders";
 import { validateQuery, validateParams, validateBody } from "@middlewares/validationMiddleware";
 import {
@@ -26,7 +27,7 @@ router.use("/b2b", b2bordersRoutes);
 router.get("/", validateQuery(findAllOrdersSchema), findAllOrders);
 router.get("/:id", validateParams(orderIdSchema), findB2COrderById);
 router.post("/", uploadS3OrderFiles, validateBody(createOrderSchema), createOrder);
-router.patch("/update-status/:id", validateParams(orderIdSchema), validateBody(updateOrderSchema), updateOrder);
+router.patch("/update-status/:id", validateParams(orderIdSchema), updateStatus);
 router.patch("/:id", validateParams(orderIdSchema), validateBody(updateOrderSchema), updateOrder);
 router.delete("/:id", validateParams(orderIdSchema), deleteOrder);
 

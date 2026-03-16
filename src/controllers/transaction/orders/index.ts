@@ -358,5 +358,22 @@ export const deleteOrder = async (req: RequestWithUser, res: Response, next: Nex
 };
 
 export const updateStatus = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  const trx = await Model.startTransaction();
+  try {
+    const id = req.params.id;
+    const { order_status_id } = req.body;
+    
+    if (!order_status_id) {
+      return next(new Error("order_status_id is required"));
+    }
 
+    await ordersService.update(id, { order_status_id }, trx);
+    await trx.commit();
+    
+    const data = await ordersService.findOne(id);
+    successResponse(res, 200, data, "Order status updated successfully");
+  } catch (error) {
+    if (trx) await trx.rollback();
+    next(error);
+  }
 };
